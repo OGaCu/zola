@@ -15,17 +15,18 @@ interface ImageItem {
 
 const ImageGallery = ({ images = defaultImages }: ImageGalleryProps) => {
   return (
-    <div className="flex flex-col h-full w-full bg-white">
+    <div className="flex flex-col flex-1 w-full bg-white overflow-auto">
       {/* Pinterest-style Masonry Grid */}
       <div className="flex-1 overflow-y-auto px-6 py-6">
         <div
-          className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-4"
+          className="masonry-gallery"
           style={{
-            gridAutoRows: "max-content",
+            columnGap: "1rem",
+            columnFill: "balance",
           }}
         >
           {images.map((image) => (
-            <div key={image.id} className="w-full">
+            <div key={image.id} className="break-inside-avoid mb-4 w-full">
               <ImageCard
                 imageUrl={image.url}
                 title={image.title}
@@ -96,6 +97,62 @@ const defaultImages: ImageItem[] = [
     title: "Jungle Adventure",
     description: "Lush rainforest with exotic wildlife",
     height: 340,
+  },
+  {
+    id: "9",
+    url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&q=80",
+    title: "Desert Oasis",
+    description: "Beautiful desert landscape with sand dunes",
+    height: 360,
+  },
+  {
+    id: "10",
+    url: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=500&q=80",
+    title: "Forest Path",
+    description: "Peaceful forest trail through tall trees",
+    height: 420,
+  },
+  {
+    id: "11",
+    url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&q=80",
+    title: "Lakeside Cabin",
+    description: "Cozy cabin by a serene mountain lake",
+    height: 290,
+  },
+  {
+    id: "12",
+    url: "https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=500&q=80",
+    title: "Waterfall Wonder",
+    description: "Majestic waterfall cascading through rocks",
+    height: 450,
+  },
+  {
+    id: "13",
+    url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&q=80",
+    title: "Coastal Cliffs",
+    description: "Dramatic cliffs overlooking the ocean",
+    height: 310,
+  },
+  {
+    id: "14",
+    url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&q=80",
+    title: "Garden Paradise",
+    description: "Colorful flower garden in full bloom",
+    height: 270,
+  },
+  {
+    id: "15",
+    url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&q=80",
+    title: "Snowy Peaks",
+    description: "Snow-covered mountain peaks at sunrise",
+    height: 380,
+  },
+  {
+    id: "16",
+    url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&q=80",
+    title: "Tropical Forest",
+    description: "Dense tropical rainforest with exotic plants",
+    height: 330,
   },
 ];
 

@@ -63,7 +63,7 @@ async def create_activity(activity: ActivityRequest):
     """Create a new activity request"""
     global activity_counter
     activity_counter += 1
-    
+
     activity_response = ActivityResponse(
         id=activity_counter,
         dateFrom=activity.dateFrom,

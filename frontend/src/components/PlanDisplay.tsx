@@ -82,7 +82,7 @@ const PlanDisplay: React.FC = () => {
                 <div key={index} className="relative">
                   <img
                     src={image.url}
-                    alt={image.description}
+                    alt={image.altText}
                     className="w-full h-20 object-cover rounded"
                   />
                   {image.tags.length > 0 && (

@@ -40,6 +40,7 @@ interface Image {
   id: string;
   url: string;
   description: string;
+  altText: string;
   tags: string[];
 }
 ```

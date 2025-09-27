@@ -94,19 +94,19 @@
 
   @media (min-width: 1024px) {
     .masonry-gallery {
-      columns: 5;
+      columns: 4;
     }
   }
 
   @media (min-width: 1280px) {
     .masonry-gallery {
-      columns: 6;
+      columns: 5;
     }
   }
 
   @media (min-width: 1536px) {
     .masonry-gallery {
-      columns: 7;
+      columns: 6;
     }
   }
 }

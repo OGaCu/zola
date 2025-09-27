@@ -61,10 +61,12 @@ async def get_random_images():
         )
 
 @app.get("/get-images", response_model=ZolaResponse)
-async def get_images():
+async def get_images(request_data: Dict[str, Any]):
     """Get multiple images from Unsplash"""
+    # request_data:
+    # {query: string}
     try:
-        images = UnsplashAction.get_images()
+        images = UnsplashAction.get_images(request_data["query"])
         return ZolaResponse(
             status="success",
             data={"images": images}

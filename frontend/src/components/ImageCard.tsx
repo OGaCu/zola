@@ -14,7 +14,7 @@ interface ImageCardProps {
 const ImageCard = ({
   imageUrl = "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=400&q=80",
   title = "Beautiful Destination",
-  description = "Explore this amazing travel destination",
+
   onPin = () => console.log("Image pinned"),
 }: ImageCardProps) => {
   // Generate a random aspect ratio once when component mounts
@@ -42,17 +42,6 @@ const ImageCard = ({
           className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
         />
       </div>
-
-      {(title || description) && (
-        <div className="p-3">
-          {title && <h3 className="font-medium text-sm truncate">{title}</h3>}
-          {description && (
-            <p className="text-xs text-muted-foreground line-clamp-2 mt-1">
-              {description}
-            </p>
-          )}
-        </div>
-      )}
     </div>
   );
 };

@@ -13,22 +13,34 @@ class Mood(str, Enum):
     CHILL = "chill"
     ENERGETIC = "energetic"
     ADVENTUROUS = "adventurous"
+    RELAXING = "relaxing"
+
+# Image model for the images array
+class Image(BaseModel):
+    id: str = Field(..., description="Unique identifier for the image")
+    url: str = Field(..., description="URL of the image")
+    description: str = Field(..., description="Description of the image")
+    tags: List[str] = Field(..., description="Tags associated with the image")
 
 # Pydantic models for activity planning
 class ActivityRequest(BaseModel):
-    activity_date: date = Field(..., description="Date for the activity")
+    dateFrom: datetime = Field(..., description="Start date and time for the activity")
+    dateTo: datetime = Field(..., description="End date and time for the activity")
     location: str = Field(..., min_length=1, description="Location for the activity")
-    number_of_people: int = Field(..., ge=1, le=50, description="Number of people (1-50)")
-    mood: Mood = Field(..., description="Mood type: chill, energetic, or adventurous")
-    additional_notes: Optional[str] = Field(None, description="Additional notes or preferences")
+    numberOfPeople: int = Field(..., ge=1, le=50, description="Number of people (1-50)")
+    budget: str = Field(..., description="Budget for the activity")
+    mood: Mood = Field(..., description="Mood type: chill, energetic, adventurous, or relaxing")
+    images: List[Image] = Field(..., description="List of images associated with the activity")
 
 class ActivityResponse(BaseModel):
     id: int
-    activity_date: date
+    dateFrom: datetime
+    dateTo: datetime
     location: str
-    number_of_people: int
+    numberOfPeople: int
+    budget: str
     mood: Mood
-    additional_notes: Optional[str]
+    images: List[Image]
     created_at: datetime
 
 # In-memory storage (replace with database in production)
@@ -54,11 +66,13 @@ async def create_activity(activity: ActivityRequest):
     
     activity_response = ActivityResponse(
         id=activity_counter,
-        activity_date=activity.activity_date,
+        dateFrom=activity.dateFrom,
+        dateTo=activity.dateTo,
         location=activity.location,
-        number_of_people=activity.number_of_people,
+        numberOfPeople=activity.numberOfPeople,
+        budget=activity.budget,
         mood=activity.mood,
-        additional_notes=activity.additional_notes,
+        images=activity.images,
         created_at=datetime.now()
     )
     
@@ -93,7 +107,7 @@ async def get_activities_by_location(location: str):
 @app.get("/activities/date/{activity_date}", response_model=List[ActivityResponse])
 async def get_activities_by_date(activity_date: date):
     """Get all activities filtered by date"""
-    filtered_activities = [activity for activity in activities_db if activity.activity_date == activity_date]
+    filtered_activities = [activity for activity in activities_db if activity.dateFrom.date() == activity_date]
     return filtered_activities
 
 @app.get("/activities/people/{min_people}/{max_people}", response_model=List[ActivityResponse])
@@ -101,7 +115,7 @@ async def get_activities_by_group_size(min_people: int, max_people: int):
     """Get all activities filtered by group size range"""
     filtered_activities = [
         activity for activity in activities_db 
-        if min_people <= activity.number_of_people <= max_people
+        if min_people <= activity.numberOfPeople <= max_people
     ]
     return filtered_activities
 
@@ -111,7 +125,9 @@ async def search_activities(
     location: Optional[str] = None,
     min_people: Optional[int] = None,
     max_people: Optional[int] = None,
-    activity_date: Optional[date] = None
+    activity_date: Optional[date] = None,
+    budget_min: Optional[str] = None,
+    budget_max: Optional[str] = None
 ):
     """Advanced search with multiple filters"""
     filtered_activities = activities_db.copy()
@@ -123,13 +139,13 @@ async def search_activities(
         filtered_activities = [a for a in filtered_activities if location.lower() in a.location.lower()]
     
     if min_people:
-        filtered_activities = [a for a in filtered_activities if a.number_of_people >= min_people]
+        filtered_activities = [a for a in filtered_activities if a.numberOfPeople >= min_people]
     
     if max_people:
-        filtered_activities = [a for a in filtered_activities if a.number_of_people <= max_people]
+        filtered_activities = [a for a in filtered_activities if a.numberOfPeople <= max_people]
     
     if activity_date:
-        filtered_activities = [a for a in filtered_activities if a.activity_date == activity_date]
+        filtered_activities = [a for a in filtered_activities if a.dateFrom.date() == activity_date]
     
     return {
         "filters_applied": {
@@ -137,7 +153,9 @@ async def search_activities(
             "location": location,
             "min_people": min_people,
             "max_people": max_people,
-            "activity_date": activity_date
+            "activity_date": activity_date,
+            "budget_min": budget_min,
+            "budget_max": budget_max
         },
         "results": filtered_activities,
         "count": len(filtered_activities)
@@ -149,19 +167,23 @@ async def get_stats():
     """Get basic statistics"""
     mood_counts = {}
     location_counts = {}
+    budget_counts = {}
     
     for activity in activities_db:
         mood_counts[activity.mood] = mood_counts.get(activity.mood, 0) + 1
         location_counts[activity.location] = location_counts.get(activity.location, 0) + 1
+        budget_counts[activity.budget] = budget_counts.get(activity.budget, 0) + 1
     
     return {
         "total_activities": len(activities_db),
         "mood_distribution": mood_counts,
         "location_distribution": location_counts,
-        "average_group_size": sum(activity.number_of_people for activity in activities_db) / len(activities_db) if activities_db else 0,
+        "budget_distribution": budget_counts,
+        "average_group_size": sum(activity.numberOfPeople for activity in activities_db) / len(activities_db) if activities_db else 0,
+        "total_images": sum(len(activity.images) for activity in activities_db),
         "date_range": {
-            "earliest": min(activity.activity_date for activity in activities_db) if activities_db else None,
-            "latest": max(activity.activity_date for activity in activities_db) if activities_db else None
+            "earliest_start": min(activity.dateFrom for activity in activities_db) if activities_db else None,
+            "latest_end": max(activity.dateTo for activity in activities_db) if activities_db else None
         }
     }
 

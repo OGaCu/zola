@@ -4,6 +4,9 @@ import os
 from typing import List
 from schema.Image import Image
 
+dotenv.load_dotenv(os.path.join(os.path.dirname(__file__), '..', '..', '.env'))
+ACCESS_KEY = os.getenv('UNSPLASH_ACCESS_KEY')
+
 class UnsplashAction:
     @staticmethod
     def get_photo_tags(photo_id):
@@ -29,7 +32,7 @@ class UnsplashAction:
             return []
 
     @staticmethod
-    def getRandomImages() -> List[Image]:
+    def get_random_images() -> List[Image]:
         """
         Get random images from Unsplash for webpage initialization
         
@@ -60,7 +63,7 @@ class UnsplashAction:
                     photo_id = photo.get('id', '')
                     image_url = photo.get('urls', {}).get('regular', '')
                     description = photo.get('description', '')
-                    alt_text = photo.get('alt_description', description)
+                    alt_text = photo.get('alt_description') or description or ""
                     
                     # Get tags for this photo
                     tags = UnsplashAction.get_photo_tags(photo_id)
@@ -90,7 +93,7 @@ class UnsplashAction:
         return images
 
     @staticmethod
-    def getImages(query: str) -> List[Image]:
+    def get_images(query: str) -> List[Image]:
         images = []
         
         try:

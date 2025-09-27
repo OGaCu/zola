@@ -4,6 +4,10 @@ from pydantic import BaseModel
 from typing import Dict, Any
 import uvicorn
 
+from actions.unsplashActions import UnsplashAction
+from actions.openAiActions import OpenAiActions
+from schema.Plan import Plan
+
 # Create FastAPI app
 app = FastAPI(
     title="Zola Backend API",
@@ -30,7 +34,6 @@ class ZolaResponse(BaseModel):
 async def root():
     """Root endpoint - Hello World"""
     return ZolaResponse(
-        message="Hello from Zola Backend API!",
         status="success",
         data={
             "version": "1.0.0",
@@ -42,6 +45,52 @@ async def root():
             }
         }
     )
+    
+@app.get("/get-random-images", response_model=ZolaResponse)
+async def get_random_images():
+    try:
+        random_images = UnsplashAction.get_random_images()
+        return ZolaResponse(
+            status="success",
+            data={"images": random_images}
+        )
+    except Exception as e:
+        return ZolaResponse(
+            status="error",
+            data={"error": str(e)}
+        )
+
+@app.get("/get-images", response_model=ZolaResponse)
+async def get_images():
+    """Get multiple images from Unsplash"""
+    try:
+        images = UnsplashAction.get_images()
+        return ZolaResponse(
+            status="success",
+            data={"images": images}
+        )
+    except Exception as e:
+        return ZolaResponse(
+            status="error",
+            data={"error": str(e)}
+        )
+
+@app.post("/create-itinerary", response_model=ZolaResponse)
+async def createItinerary(request_data: Dict[str, Any]):
+    """Create itinerary based on plan data"""
+    try:
+        # Convert request data to Plan object
+        plan = Plan(**request_data)
+        itinerary = OpenAiActions.createItinerary(plan)
+        return ZolaResponse(
+            status="success",
+            data={"itinerary": itinerary}
+        )
+    except Exception as e:
+        return ZolaResponse(
+            status="error",
+            data={"error": str(e)}
+        )
 
 # Run the application
 if __name__ == "__main__":

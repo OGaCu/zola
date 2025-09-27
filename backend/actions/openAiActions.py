@@ -1,4 +1,38 @@
-def make_itinerary_prompt(date, location, num_people, mood, alt_texts):
+from schema.Plan import Plan
+from openai import OpenAI
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+client = OpenAI(api_key=os.getenv('OPENAI_KEY'))
+
+class OpenAiActions:
+    @staticmethod
+    def createItinerary(plan: Plan) -> str:
+        # Use the existing prompt logic
+        date_range = f"{plan.dateFrom} to {plan.dateTo}"
+        alt_texts = []  # You can populate this with additional ideas if needed
+        
+        prompt = itinerary_prompt_template(
+            date=date_range,
+            location=plan.location,
+            num_people=plan.numPeople,
+            mood=plan.mood,
+            alt_texts=alt_texts
+        )
+        
+        # Make actual OpenAI API call
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "user", "content": prompt}
+            ],
+            max_tokens=1000  # give enough room for the response
+        )
+        
+        return response.choices[0].message.content
+
+def itinerary_prompt_template(date, location, num_people, mood, alt_texts):
 
     alt_text_md = "\n".join([f"- {text}" for text in alt_texts])
 

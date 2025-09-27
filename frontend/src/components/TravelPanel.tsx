@@ -13,7 +13,7 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Calendar as CalendarComponent } from "./ui/calendar";
 import { format } from "date-fns";
-import { ChevronLeft, ChevronRight, GripVertical } from "lucide-react";
+import { ChevronLeft, ChevronRight, GripVertical, MapPin } from "lucide-react";
 
 interface TravelPanelProps {
   onGenerate?: (params: {
@@ -119,8 +119,20 @@ const TravelPanel = ({
         </div>
       </div>
 
+      {/* Collapsed state - shows icon at top */}
+      {isCollapsed && (
+        <div className="h-full flex flex-col">
+          <div className="p-4 flex items-center justify-center">
+            <div className="min-w-12 h-12 bg-[#0abab5] rounded-full flex items-center justify-center shadow-md">
+              <MapPin className="w-6 h-6 text-white" />
+            </div>
+          </div>
+        </div>
+      )}
+
       {!isCollapsed && (
         <div className="p-6 flex flex-col h-full">
+          <h1 className="text-4xl font-bold mb-6">Zola</h1>
           <h2 className="text-2xl font-bold mb-6">Plan Your Trip</h2>
 
           <div className="space-y-6 flex-grow">
@@ -190,7 +202,10 @@ const TravelPanel = ({
           </div>
 
           {/* Generate button */}
-          <Button className="w-full mt-8 py-6 text-lg" onClick={handleGenerate}>
+          <Button
+            className="w-full mt-8 py-6 text-lg bg-[#0abab5]"
+            onClick={handleGenerate}
+          >
             Generate
           </Button>
         </div>

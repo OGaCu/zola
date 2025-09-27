@@ -49,7 +49,6 @@ const Home = () => {
 
   const handleTogglePinnedView = () => {
     setShowOnlyPinned(!showOnlyPinned);
-    console.log("Show only pinned:", !showOnlyPinned);
   };
 
   return (
@@ -86,7 +85,12 @@ const Home = () => {
           </div>
           <button
             onClick={handleSearch}
-            className="px-4 py-2 bg-primary text-primary-foreground rounded-full hover:bg-primary/90 transition-colors"
+            disabled={!searchQuery.trim()}
+            className={`px-4 py-2 rounded-full transition-colors ${
+              !searchQuery.trim()
+                ? "bg-muted text-muted-foreground cursor-not-allowed"
+                : "bg-primary text-primary-foreground hover:bg-primary/90"
+            }`}
           >
             Search
           </button>

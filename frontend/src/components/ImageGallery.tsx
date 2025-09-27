@@ -13,36 +13,19 @@ interface ImageItem {
   height?: number;
 }
 
-// Configurable breakpoints for responsive columns
-const BREAKPOINT_CONFIG = {
-  mobile: 1, // < 640px
-  sm: 2, // 640px+
-  md: 3, // 768px+
-  lg: 4, // 1024px+
-  xl: 5, // 1280px+
-  "2xl": 6, // 1536px+
-};
-
 const ImageGallery = ({ images = defaultImages }: ImageGalleryProps) => {
-  // Generate responsive column classes based on config
-  const getResponsiveColumns = () => {
-    return Object.entries(BREAKPOINT_CONFIG)
-      .map(([breakpoint, columns]) => {
-        if (breakpoint === "mobile") {
-          return `columns-${columns}`;
-        }
-        return `${breakpoint}:columns-${columns}`;
-      })
-      .join(" ");
-  };
-
   return (
     <div className="flex flex-col h-full w-full bg-white">
       {/* Pinterest-style Masonry Grid */}
       <div className="flex-1 overflow-y-auto px-6 py-6">
-        <div className={`${getResponsiveColumns()} gap-4 space-y-4`}>
+        <div
+          className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-4"
+          style={{
+            gridAutoRows: "max-content",
+          }}
+        >
           {images.map((image) => (
-            <div key={image.id} className="break-inside-avoid mb-4">
+            <div key={image.id} className="w-full">
               <ImageCard
                 imageUrl={image.url}
                 title={image.title}

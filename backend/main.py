@@ -37,12 +37,7 @@ async def root():
         status="success",
         data={
             "version": "1.0.0",
-            "service": "Zola Backend",
-            "endpoints": {
-                "hello": "/hello",
-                "health": "/health",
-                "docs": "/docs"
-            }
+            "service": "Created with love by Andrew, Gia, and Rachel",
         }
     )
     

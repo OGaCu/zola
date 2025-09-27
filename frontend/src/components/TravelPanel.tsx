@@ -19,23 +19,15 @@ import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { updateCurrentPlan, setCurrentPlan } from "../store/slices/travelSlice";
 import { Plan } from "../types";
 import { deserializeDateRange, serializeDateRange } from "../utils/dateUtils";
+import { itineraryService } from "../services";
 
 interface TravelPanelProps {
-  onGenerate?: (params: {
-    dateFrom: Date | undefined;
-    dateTo: Date | undefined;
-    location: string;
-    numberOfPeople: number;
-    budget: string;
-    mood: string;
-  }) => void;
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
   onWidthChange?: (width: number) => void;
 }
 
 const TravelPanel = ({
-  onGenerate = () => {},
   isCollapsed = false,
   onToggleCollapse = () => {},
   onWidthChange = () => {},
@@ -50,9 +42,7 @@ const TravelPanel = ({
     })
   );
   const [location, setLocation] = useState(currentPlan?.location || "");
-  const [numberOfPeople, setNumberOfPeople] = useState(
-    currentPlan?.numberOfPeople || 1
-  );
+  const [numPeople, setNumPeople] = useState(currentPlan?.numPeople || 1);
   const [budget, setBudget] = useState(currentPlan?.budget || "");
   const [mood, setMood] = useState(currentPlan?.mood || "relaxing");
   const [isDragging, setIsDragging] = useState(false);
@@ -103,39 +93,39 @@ const TravelPanel = ({
         })
       );
       setLocation(currentPlan.location);
-      setNumberOfPeople(currentPlan.numberOfPeople);
+      setNumPeople(currentPlan.numPeople);
       setBudget(currentPlan.budget);
       setMood(currentPlan.mood);
     }
   }, [currentPlan]);
 
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
     const serializedDates = serializeDateRange(dateRange);
     const planData: Plan = {
       dateFrom: serializedDates.from,
       dateTo: serializedDates.to,
       location,
-      numberOfPeople,
+      numPeople: numPeople,
       budget,
       mood,
       images: currentPlan?.images || [],
     };
 
-    // Print the plan object to console
-    console.log("Generated Plan:", planData);
-
     // Update Redux state
     dispatch(setCurrentPlan(planData));
+    // Generate itinerary using the service
+    try {
+      const result = await itineraryService.createItinerary(planData);
 
-    // Call the original onGenerate callback
-    onGenerate({
-      dateFrom: dateRange?.from,
-      dateTo: dateRange?.to,
-      location,
-      numberOfPeople,
-      budget,
-      mood,
-    });
+      if (result && result.status === "success") {
+        console.log("Itinerary generated successfully:", result.data.itinerary);
+        // You can add the itinerary to your state or display it here
+      } else {
+        console.error("Failed to generate itinerary:", result?.data?.error);
+      }
+    } catch (error) {
+      console.error("Error generating itinerary:", error);
+    }
   };
 
   const moodOptions = [
@@ -246,10 +236,8 @@ const TravelPanel = ({
                 min="1"
                 max="20"
                 placeholder="How many people?"
-                value={numberOfPeople}
-                onChange={(e) =>
-                  setNumberOfPeople(parseInt(e.target.value) || 1)
-                }
+                value={numPeople}
+                onChange={(e) => setNumPeople(parseInt(e.target.value) || 1)}
               />
             </div>
 

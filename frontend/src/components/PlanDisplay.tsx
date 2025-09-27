@@ -52,7 +52,7 @@ const PlanDisplay: React.FC = () => {
           <div className="flex items-center space-x-2">
             <Users className="h-4 w-4 text-gray-500" />
             <span className="text-sm text-gray-600">People:</span>
-            <span className="font-medium">{currentPlan.numberOfPeople}</span>
+            <span className="font-medium">{currentPlan.numPeople}</span>
           </div>
 
           <div className="flex items-center space-x-2">

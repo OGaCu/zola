@@ -26,7 +26,7 @@ interface Plan {
   dateFrom: string | undefined;
   dateTo: string | undefined;
   location: string;
-  numberOfPeople: number;
+  numPeople: number;
   budget: string;
   mood: string;
   images: Image[];

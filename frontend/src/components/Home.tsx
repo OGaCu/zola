@@ -52,25 +52,6 @@ const Home = () => {
     console.log("Show only pinned:", !showOnlyPinned);
   };
 
-  // API call function
-  const fetchApiData = async () => {
-    try {
-      console.log("Making API call to backend...");
-      const response = await fetch("http://localhost:8000/");
-      const data = await response.json();
-      console.log("API Response:", data);
-      return data;
-    } catch (error) {
-      console.error("API call failed:", error);
-      return null;
-    }
-  };
-
-  // useEffect to call API when component loads
-  useEffect(() => {
-    fetchApiData();
-  }, []);
-
   return (
     <div className="flex h-screen w-full bg-background overflow-hidden">
       {/* Left Panel */}

@@ -1,19 +1,20 @@
 import React from "react";
 import ImageCard from "./ImageCard";
+import { Image } from "../types";
+import { useAppSelector } from "../store/hooks";
 
 interface ImageGalleryProps {
-  images?: ImageItem[];
+  images?: Image[];
+  onPinImage?: (image: Image) => void;
 }
 
-interface ImageItem {
-  id: string;
-  url: string;
-  title: string;
-  description?: string;
-  height?: number;
-}
+const ImageGallery = ({
+  images = defaultImages,
+  onPinImage,
+}: ImageGalleryProps) => {
+  const currentPlan = useAppSelector((state) => state.travel.currentPlan);
+  const pinnedImageIds = currentPlan?.images?.map((img) => img.id) || [];
 
-const ImageGallery = ({ images = defaultImages }: ImageGalleryProps) => {
   return (
     <div className="flex flex-col flex-1 w-full bg-white overflow-auto">
       {/* Pinterest-style Masonry Grid */}
@@ -28,9 +29,9 @@ const ImageGallery = ({ images = defaultImages }: ImageGalleryProps) => {
           {images.map((image) => (
             <div key={image.id} className="break-inside-avoid mb-4 w-full">
               <ImageCard
-                imageUrl={image.url}
-                title={image.title}
-                description={image.description || ""}
+                image={image}
+                onPin={() => onPinImage?.(image)}
+                isPinned={pinnedImageIds.includes(image.id)}
               />
             </div>
           ))}
@@ -40,119 +41,103 @@ const ImageGallery = ({ images = defaultImages }: ImageGalleryProps) => {
   );
 };
 
-// Default images for demonstration
-const defaultImages: ImageItem[] = [
+// Default images for demonstration - transformed to fit Image schema
+const defaultImages: Image[] = [
   {
-    id: "1",
+    id: "img-beach-paradise-001",
     url: "https://images.unsplash.com/photo-1506929562872-bb421503ef21?w=500&q=80",
-    title: "Beach Paradise",
     description: "Tropical beach with crystal clear water",
-    height: 320,
+    tags: ["beach", "tropical", "paradise", "vacation"],
   },
   {
-    id: "2",
+    id: "img-mountain-retreat-002",
     url: "https://images.unsplash.com/photo-1454391304352-2bf4678b1a7a?w=500&q=80",
-    title: "Mountain Retreat",
     description: "Serene mountain landscape with snow-capped peaks",
-    height: 400,
+    tags: ["mountain", "landscape", "nature", "peaceful"],
   },
   {
-    id: "3",
+    id: "img-city-lights-003",
     url: "https://images.unsplash.com/photo-1515859005217-8a1f08870f59?w=500&q=80",
-    title: "City Lights",
     description: "Vibrant cityscape at night with illuminated buildings",
-    height: 280,
+    tags: ["city", "night", "urban", "lights"],
   },
   {
-    id: "4",
+    id: "img-autumn-trails-004",
     url: "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=500&q=80",
-    title: "Autumn Trails",
     description: "Scenic hiking trail surrounded by fall foliage",
-    height: 350,
+    tags: ["hiking", "autumn", "trail", "nature"],
   },
   {
-    id: "5",
+    id: "img-island-getaway-005",
     url: "https://images.unsplash.com/photo-1504567961542-e24d9439a724?w=500&q=80",
-    title: "Island Getaway",
     description: "Remote island paradise with white sandy beaches",
-    height: 300,
+    tags: ["island", "beach", "paradise", "tropical"],
   },
   {
-    id: "6",
+    id: "img-sunset-horizon-006",
     url: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=500&q=80",
-    title: "Sunset Horizon",
     description: "Breathtaking sunset over calm waters",
-    height: 320,
+    tags: ["sunset", "water", "serene", "beautiful"],
   },
   {
-    id: "7",
+    id: "img-historic-architecture-007",
     url: "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=500&q=80",
-    title: "Historic Architecture",
     description: "Ancient ruins and historic buildings",
-    height: 380,
+    tags: ["historic", "architecture", "ancient", "culture"],
   },
   {
-    id: "8",
+    id: "img-jungle-adventure-008",
     url: "https://images.unsplash.com/photo-1445307806294-bff7f67ff225?w=500&q=80",
-    title: "Jungle Adventure",
     description: "Lush rainforest with exotic wildlife",
-    height: 340,
+    tags: ["jungle", "rainforest", "wildlife", "adventure"],
   },
   {
-    id: "9",
+    id: "img-desert-oasis-009",
     url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&q=80",
-    title: "Desert Oasis",
     description: "Beautiful desert landscape with sand dunes",
-    height: 360,
+    tags: ["desert", "sand", "landscape", "adventure"],
   },
   {
-    id: "10",
+    id: "img-forest-path-010",
     url: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=500&q=80",
-    title: "Forest Path",
     description: "Peaceful forest trail through tall trees",
-    height: 420,
+    tags: ["forest", "trail", "trees", "peaceful"],
   },
   {
-    id: "11",
+    id: "img-lakeside-cabin-011",
     url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&q=80",
-    title: "Lakeside Cabin",
     description: "Cozy cabin by a serene mountain lake",
-    height: 290,
+    tags: ["cabin", "lake", "mountain", "cozy"],
   },
   {
-    id: "12",
+    id: "img-waterfall-wonder-012",
     url: "https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=500&q=80",
-    title: "Waterfall Wonder",
     description: "Majestic waterfall cascading through rocks",
-    height: 450,
+    tags: ["waterfall", "nature", "majestic", "water"],
   },
   {
-    id: "13",
+    id: "img-coastal-cliffs-013",
     url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&q=80",
-    title: "Coastal Cliffs",
     description: "Dramatic cliffs overlooking the ocean",
-    height: 310,
+    tags: ["cliffs", "ocean", "dramatic", "coastal"],
   },
   {
-    id: "14",
+    id: "img-garden-paradise-014",
     url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&q=80",
-    title: "Garden Paradise",
     description: "Colorful flower garden in full bloom",
-    height: 270,
+    tags: ["garden", "flowers", "colorful", "bloom"],
   },
   {
-    id: "15",
+    id: "img-snowy-peaks-015",
     url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&q=80",
-    title: "Snowy Peaks",
     description: "Snow-covered mountain peaks at sunrise",
-    height: 380,
+    tags: ["snow", "mountain", "sunrise", "peaks"],
   },
   {
-    id: "16",
+    id: "img-tropical-forest-016",
     url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&q=80",
-    title: "Tropical Forest",
     description: "Dense tropical rainforest with exotic plants",
-    height: 330,
+    tags: ["rainforest", "tropical", "plants", "dense"],
   },
 ];
 

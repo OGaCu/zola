@@ -3,13 +3,34 @@ import { motion } from "framer-motion";
 import { Search, Settings, Filter } from "lucide-react";
 import TravelPanel from "./TravelPanel.tsx";
 import ImageGallery from "./ImageGallery.tsx";
+import { useTravelActions } from "../store/actions";
+import { Image } from "../types";
+import { useAppSelector } from "../store/hooks";
 
 const Home = () => {
   const [isPanelCollapsed, setIsPanelCollapsed] = useState(false);
   const [panelWidth, setPanelWidth] = useState(350);
+  const { addImagesToCurrentPlan, removeImageFromCurrentPlan } =
+    useTravelActions();
+  const currentPlan = useAppSelector((state) => state.travel.currentPlan);
 
   const handleWidthChange = (newWidth: number) => {
     setPanelWidth(newWidth);
+  };
+
+  const handlePinImage = (image: Image) => {
+    const isImagePinned =
+      currentPlan?.images?.some((img) => img.id === image.id) || false;
+
+    if (isImagePinned) {
+      console.log("Unpinning image from plan:", image);
+      removeImageFromCurrentPlan(image.id);
+      console.log("Image removed from current plan!");
+    } else {
+      console.log("Pinning image to plan:", image);
+      addImagesToCurrentPlan([image]);
+      console.log("Image added to current plan!");
+    }
   };
 
   return (
@@ -48,7 +69,7 @@ const Home = () => {
             <Settings className="h-5 w-5 text-foreground" />
           </button>
         </div>
-        <ImageGallery />
+        <ImageGallery onPinImage={handlePinImage} />
       </div>
     </div>
   );

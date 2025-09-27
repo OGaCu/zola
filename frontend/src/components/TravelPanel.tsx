@@ -13,12 +13,19 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Calendar as CalendarComponent } from "./ui/calendar";
 import { format } from "date-fns";
+import { DateRange } from "react-day-picker";
 import { ChevronLeft, ChevronRight, GripVertical, MapPin } from "lucide-react";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
+import { updateCurrentPlan, setCurrentPlan } from "../store/slices/travelSlice";
+import { Plan } from "../types";
+import { deserializeDateRange, serializeDateRange } from "../utils/dateUtils";
 
 interface TravelPanelProps {
   onGenerate?: (params: {
-    date: Date | undefined;
+    dateFrom: Date | undefined;
+    dateTo: Date | undefined;
     location: string;
+    numberOfPeople: number;
     budget: string;
     mood: string;
   }) => void;
@@ -33,10 +40,21 @@ const TravelPanel = ({
   onToggleCollapse = () => {},
   onWidthChange = () => {},
 }: TravelPanelProps) => {
-  const [date, setDate] = useState<Date>();
-  const [location, setLocation] = useState("");
-  const [budget, setBudget] = useState("");
-  const [mood, setMood] = useState("relaxing");
+  const dispatch = useAppDispatch();
+  const currentPlan = useAppSelector((state) => state.travel.currentPlan);
+
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(
+    deserializeDateRange({
+      from: currentPlan?.dateFrom,
+      to: currentPlan?.dateTo,
+    })
+  );
+  const [location, setLocation] = useState(currentPlan?.location || "");
+  const [numberOfPeople, setNumberOfPeople] = useState(
+    currentPlan?.numberOfPeople || 1
+  );
+  const [budget, setBudget] = useState(currentPlan?.budget || "");
+  const [mood, setMood] = useState(currentPlan?.mood || "relaxing");
   const [isDragging, setIsDragging] = useState(false);
 
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -75,10 +93,46 @@ const TravelPanel = ({
     };
   }, [isDragging]);
 
+  // Sync local state with Redux state
+  React.useEffect(() => {
+    if (currentPlan) {
+      setDateRange(
+        deserializeDateRange({
+          from: currentPlan.dateFrom,
+          to: currentPlan.dateTo,
+        })
+      );
+      setLocation(currentPlan.location);
+      setNumberOfPeople(currentPlan.numberOfPeople);
+      setBudget(currentPlan.budget);
+      setMood(currentPlan.mood);
+    }
+  }, [currentPlan]);
+
   const handleGenerate = () => {
-    onGenerate({
-      date,
+    const serializedDates = serializeDateRange(dateRange);
+    const planData: Plan = {
+      dateFrom: serializedDates.from,
+      dateTo: serializedDates.to,
       location,
+      numberOfPeople,
+      budget,
+      mood,
+      images: currentPlan?.images || [],
+    };
+
+    // Print the plan object to console
+    console.log("Generated Plan:", planData);
+
+    // Update Redux state
+    dispatch(setCurrentPlan(planData));
+
+    // Call the original onGenerate callback
+    onGenerate({
+      dateFrom: dateRange?.from,
+      dateTo: dateRange?.to,
+      location,
+      numberOfPeople,
       budget,
       mood,
     });
@@ -136,9 +190,9 @@ const TravelPanel = ({
           <h2 className="text-2xl font-bold mb-6">Plan Your Trip</h2>
 
           <div className="space-y-6 flex-grow">
-            {/* Date picker */}
+            {/* Date range picker */}
             <div className="space-y-2">
-              <Label htmlFor="date">Travel Date</Label>
+              <Label htmlFor="date">Travel Dates</Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
@@ -147,14 +201,25 @@ const TravelPanel = ({
                     id="date"
                   >
                     <Calendar className="mr-2 h-4 w-4" />
-                    {date ? format(date, "PPP") : <span>Pick a date</span>}
+                    {dateRange?.from ? (
+                      dateRange.to ? (
+                        <>
+                          {format(dateRange.from, "LLL dd, y")} -{" "}
+                          {format(dateRange.to, "LLL dd, y")}
+                        </>
+                      ) : (
+                        format(dateRange.from, "LLL dd, y")
+                      )
+                    ) : (
+                      <span>Pick a date range</span>
+                    )}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
                   <CalendarComponent
-                    mode="single"
-                    selected={date}
-                    onSelect={setDate}
+                    mode="range"
+                    selected={dateRange}
+                    onSelect={setDateRange}
                     initialFocus
                   />
                 </PopoverContent>
@@ -169,6 +234,22 @@ const TravelPanel = ({
                 placeholder="Where do you want to go?"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
+              />
+            </div>
+
+            {/* Number of people input */}
+            <div className="space-y-2">
+              <Label htmlFor="people">Number of People</Label>
+              <Input
+                id="people"
+                type="number"
+                min="1"
+                max="20"
+                placeholder="How many people?"
+                value={numberOfPeople}
+                onChange={(e) =>
+                  setNumberOfPeople(parseInt(e.target.value) || 1)
+                }
               />
             </div>
 

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Search, Settings, Filter } from "lucide-react";
+import { Search, Settings, Pin } from "lucide-react";
 import TravelPanel from "./TravelPanel.tsx";
 import ImageGallery from "./ImageGallery.tsx";
 import { useTravelActions } from "../store/actions";
@@ -10,6 +10,8 @@ import { useAppSelector } from "../store/hooks";
 const Home = () => {
   const [isPanelCollapsed, setIsPanelCollapsed] = useState(false);
   const [panelWidth, setPanelWidth] = useState(350);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showOnlyPinned, setShowOnlyPinned] = useState(false);
   const { addImagesToCurrentPlan, removeImageFromCurrentPlan } =
     useTravelActions();
   const currentPlan = useAppSelector((state) => state.travel.currentPlan);
@@ -31,6 +33,23 @@ const Home = () => {
       addImagesToCurrentPlan([image]);
       console.log("Image added to current plan!");
     }
+  };
+
+  const handleSearch = () => {
+    console.log("Search query:", searchQuery);
+    // Clear search input after searching
+    setSearchQuery("");
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
+  };
+
+  const handleTogglePinnedView = () => {
+    setShowOnlyPinned(!showOnlyPinned);
+    console.log("Show only pinned:", !showOnlyPinned);
   };
 
   return (
@@ -59,17 +78,36 @@ const Home = () => {
             <input
               type="text"
               placeholder="Search for inspiration..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyPress={handleKeyPress}
               className="w-full pl-10 h-10 rounded-full border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
             />
           </div>
-          <button className="rounded-full p-2 bg-muted hover:bg-muted/80 transition-colors">
-            <Filter className="h-5 w-5 text-foreground" />
+          <button
+            onClick={handleSearch}
+            className="px-4 py-2 bg-primary text-primary-foreground rounded-full hover:bg-primary/90 transition-colors"
+          >
+            Search
           </button>
-          <button className="rounded-full p-2 bg-muted hover:bg-muted/80 transition-colors">
-            <Settings className="h-5 w-5 text-foreground" />
+          <button
+            onClick={handleTogglePinnedView}
+            className={`rounded-full p-2 transition-colors ${
+              showOnlyPinned
+                ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                : "bg-muted hover:bg-muted/80"
+            }`}
+            title={
+              showOnlyPinned ? "Show all images" : "Show only pinned images"
+            }
+          >
+            <Pin className="h-5 w-5" />
           </button>
         </div>
-        <ImageGallery onPinImage={handlePinImage} />
+        <ImageGallery
+          onPinImage={handlePinImage}
+          showOnlyPinned={showOnlyPinned}
+        />
       </div>
     </div>
   );

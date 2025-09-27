@@ -6,36 +6,54 @@ import { useAppSelector } from "../store/hooks";
 interface ImageGalleryProps {
   images?: Image[];
   onPinImage?: (image: Image) => void;
+  showOnlyPinned?: boolean;
 }
 
 const ImageGallery = ({
   images = defaultImages,
   onPinImage,
+  showOnlyPinned = false,
 }: ImageGalleryProps) => {
   const currentPlan = useAppSelector((state) => state.travel.currentPlan);
   const pinnedImageIds = currentPlan?.images?.map((img) => img.id) || [];
+
+  // Filter images based on showOnlyPinned prop
+  const filteredImages = showOnlyPinned
+    ? images.filter((image) => pinnedImageIds.includes(image.id))
+    : images;
 
   return (
     <div className="flex flex-col flex-1 w-full bg-white overflow-auto">
       {/* Pinterest-style Masonry Grid */}
       <div className="flex-1 overflow-y-auto px-6 py-6">
-        <div
-          className="masonry-gallery"
-          style={{
-            columnGap: "1rem",
-            columnFill: "balance",
-          }}
-        >
-          {images.map((image) => (
-            <div key={image.id} className="break-inside-avoid mb-4 w-full">
-              <ImageCard
-                image={image}
-                onPin={() => onPinImage?.(image)}
-                isPinned={pinnedImageIds.includes(image.id)}
-              />
+        {showOnlyPinned && filteredImages.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-full text-center">
+            <div className="text-muted-foreground text-lg mb-2">
+              No pinned images
             </div>
-          ))}
-        </div>
+            <div className="text-sm text-muted-foreground">
+              Pin some images to see them here
+            </div>
+          </div>
+        ) : (
+          <div
+            className="masonry-gallery"
+            style={{
+              columnGap: "1rem",
+              columnFill: "balance",
+            }}
+          >
+            {filteredImages.map((image) => (
+              <div key={image.id} className="break-inside-avoid mb-4 w-full">
+                <ImageCard
+                  image={image}
+                  onPin={() => onPinImage?.(image)}
+                  isPinned={pinnedImageIds.includes(image.id)}
+                />
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

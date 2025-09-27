@@ -24,17 +24,56 @@ interface TravelPanelProps {
   }) => void;
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
+  onWidthChange?: (width: number) => void;
 }
 
 const TravelPanel = ({
   onGenerate = () => {},
   isCollapsed = false,
   onToggleCollapse = () => {},
+  onWidthChange = () => {},
 }: TravelPanelProps) => {
   const [date, setDate] = useState<Date>();
   const [location, setLocation] = useState("");
   const [budget, setBudget] = useState("");
   const [mood, setMood] = useState("relaxing");
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleMouseMove = (e: MouseEvent) => {
+    if (!isDragging) return;
+    const newWidth = e.clientX;
+
+    // If panel is collapsed and we're dragging, expand it first
+    if (isCollapsed && newWidth > 200) {
+      onToggleCollapse();
+    }
+
+    // Set the new width if within bounds
+    if (newWidth > 200 && newWidth < 500) {
+      onWidthChange(newWidth);
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  React.useEffect(() => {
+    if (isDragging) {
+      document.addEventListener("mousemove", handleMouseMove);
+      document.addEventListener("mouseup", handleMouseUp);
+    }
+
+    return () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [isDragging]);
 
   const handleGenerate = () => {
     onGenerate({
@@ -55,22 +94,30 @@ const TravelPanel = ({
 
   return (
     <div className="relative h-full bg-white border-r border-gray-200 shadow-sm flex flex-col">
-      {/* Drag handle */}
-      <div className="absolute top-1/2 -right-3 transform -translate-y-1/2 cursor-move bg-gray-200 p-1 rounded-full">
-        <GripVertical className="h-4 w-4 text-gray-500" />
-      </div>
+      {/* Handle buttons container */}
+      <div className="absolute top-1/2 -right-3 transform -translate-y-1/2 flex flex-col gap-1 z-20">
+        {/* Expand/Collapse button - always visible */}
+        <button
+          onClick={onToggleCollapse}
+          className="bg-white p-1.5 rounded-full shadow-md hover:bg-gray-100 transition-colors border border-gray-200"
+          title={isCollapsed ? "Expand panel" : "Collapse panel"}
+        >
+          {isCollapsed ? (
+            <ChevronRight className="h-3 w-3 text-gray-600" />
+          ) : (
+            <ChevronLeft className="h-3 w-3 text-gray-600" />
+          )}
+        </button>
 
-      {/* Collapse/Expand button */}
-      <button
-        onClick={onToggleCollapse}
-        className="absolute top-1/2 -right-10 transform -translate-y-1/2 bg-white p-2 rounded-full shadow-md hover:bg-gray-100 transition-colors"
-      >
-        {isCollapsed ? (
-          <ChevronRight className="h-4 w-4" />
-        ) : (
-          <ChevronLeft className="h-4 w-4" />
-        )}
-      </button>
+        {/* Drag handle - always visible */}
+        <div
+          className="cursor-col-resize bg-gray-200 p-1.5 rounded-full shadow-md hover:bg-gray-300 transition-colors select-none"
+          onMouseDown={handleMouseDown}
+          title={isCollapsed ? "Drag to expand panel" : "Drag to resize panel"}
+        >
+          <GripVertical className="h-3 w-3 text-gray-500" />
+        </div>
+      </div>
 
       {!isCollapsed && (
         <div className="p-6 flex flex-col h-full">

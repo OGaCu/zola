@@ -7,23 +7,13 @@ import ImageGallery from "./ImageGallery.tsx";
 const Home = () => {
   const [isPanelCollapsed, setIsPanelCollapsed] = useState(false);
   const [panelWidth, setPanelWidth] = useState(350);
-  const [isDragging, setIsDragging] = useState(false);
 
-  const handleDrag = (e: React.MouseEvent) => {
-    if (!isDragging) return;
-    const newWidth = e.clientX;
-    if (newWidth > 200 && newWidth < 500) {
-      setPanelWidth(newWidth);
-    }
+  const handleWidthChange = (newWidth: number) => {
+    setPanelWidth(newWidth);
   };
 
   return (
-    <div
-      className="flex h-screen w-full bg-background overflow-hidden"
-      onMouseMove={handleDrag}
-      onMouseUp={() => setIsDragging(false)}
-      onMouseLeave={() => setIsDragging(false)}
-    >
+    <div className="flex h-screen w-full bg-background overflow-hidden">
       {/* Left Panel */}
       <motion.div
         initial={{ width: panelWidth }}
@@ -36,12 +26,7 @@ const Home = () => {
         <TravelPanel
           isCollapsed={isPanelCollapsed}
           onToggleCollapse={() => setIsPanelCollapsed(!isPanelCollapsed)}
-        />
-
-        {/* Drag Handle */}
-        <div
-          className="absolute top-0 right-0 w-2 h-full cursor-col-resize hover:bg-primary/20 z-10"
-          onMouseDown={() => setIsDragging(true)}
+          onWidthChange={handleWidthChange}
         />
       </motion.div>
 

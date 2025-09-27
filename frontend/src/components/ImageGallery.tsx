@@ -1,12 +1,7 @@
-import React, { useState } from "react";
-import { Search, Filter, SlidersHorizontal } from "lucide-react";
-import { Input } from "./ui/input";
-import { Button } from "./ui/button";
+import React from "react";
 import ImageCard from "./ImageCard";
 
 interface ImageGalleryProps {
-  searchQuery?: string;
-  onSearchChange?: (query: string) => void;
   images?: ImageItem[];
 }
 
@@ -18,61 +13,44 @@ interface ImageItem {
   height?: number;
 }
 
-const ImageGallery = ({
-  searchQuery = "",
-  onSearchChange = () => {},
-  images = defaultImages,
-}: ImageGalleryProps) => {
-  const [query, setQuery] = useState(searchQuery);
+// Configurable breakpoints for responsive columns
+const BREAKPOINT_CONFIG = {
+  mobile: 1, // < 640px
+  sm: 2, // 640px+
+  md: 3, // 768px+
+  lg: 4, // 1024px+
+  xl: 5, // 1280px+
+  "2xl": 6, // 1536px+
+};
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newQuery = e.target.value;
-    setQuery(newQuery);
-    onSearchChange(newQuery);
+const ImageGallery = ({ images = defaultImages }: ImageGalleryProps) => {
+  // Generate responsive column classes based on config
+  const getResponsiveColumns = () => {
+    return Object.entries(BREAKPOINT_CONFIG)
+      .map(([breakpoint, columns]) => {
+        if (breakpoint === "mobile") {
+          return `columns-${columns}`;
+        }
+        return `${breakpoint}:columns-${columns}`;
+      })
+      .join(" ");
   };
 
   return (
-    <div className="flex flex-col h-full w-full bg-white p-6">
-      {/* Search and Filter Controls */}
-      <div className="flex items-center gap-4 mb-6">
-        <div className="relative flex-1">
-          <Search
-            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-            size={18}
-          />
-          <Input
-            className="pl-10 pr-4 h-10 rounded-full"
-            placeholder="Search destinations, activities..."
-            value={query}
-            onChange={handleSearchChange}
-          />
+    <div className="flex flex-col h-full w-full bg-white">
+      {/* Pinterest-style Masonry Grid */}
+      <div className="flex-1 overflow-y-auto px-6 py-6">
+        <div className={`${getResponsiveColumns()} gap-4 space-y-4`}>
+          {images.map((image) => (
+            <div key={image.id} className="break-inside-avoid mb-4">
+              <ImageCard
+                imageUrl={image.url}
+                title={image.title}
+                description={image.description || ""}
+              />
+            </div>
+          ))}
         </div>
-        <Button
-          variant="outline"
-          size="icon"
-          className="rounded-full h-10 w-10"
-        >
-          <Filter size={18} />
-        </Button>
-        <Button
-          variant="outline"
-          size="icon"
-          className="rounded-full h-10 w-10"
-        >
-          <SlidersHorizontal size={18} />
-        </Button>
-      </div>
-
-      {/* Masonry Image Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 overflow-y-auto">
-        {images.map((image) => (
-          <ImageCard
-            key={image.id}
-            imageUrl={image.url}
-            title={image.title}
-            description={image.description || ""}
-          />
-        ))}
       </div>
     </div>
   );

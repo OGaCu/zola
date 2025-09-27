@@ -1,11 +1,3 @@
-from openai import OpenAI
-from dotenv import load_dotenv
-import os
-#from create_prompt import make_itinerary_prompt
-
-load_dotenv()
-client = OpenAI(api_key=os.getenv('OPENAI_KEY'))
-
 def make_itinerary_prompt(date, location, num_people, mood, alt_texts):
     """
     Create a markdown-formatted prompt for ChatGPT to generate a travel itinerary.
@@ -58,32 +50,4 @@ Repeat for each day of the trip.
 
 """
     return prompt.strip()
-
-"""response = client.chat.completions.create(
-    model="gpt-4o-mini",  # lightweight + cheaper
-    messages=[
-        {"role": "user", "content": "hi"}  # short input = fewer tokens
-    ],
-    max_tokens=3  # cap output length
-)
-
-print(response.choices[0].message.content)"""
-
-
-print("generating prompt")
-prompt = make_itinerary_prompt(date="2025-05-10", location="Los Angeles, California", num_people=2, mood="adventurous", alt_texts=["walking on the beach", "restaurant with view", "outdoor shopping mall"])
-
-# Call the API with the generated prompt
-test_response = client.chat.completions.create(
-    model="gpt-4o-mini",
-    messages=[
-        {"role": "user", "content": prompt}
-    ],
-    max_tokens=500  # give enough room for the response
-)
-
-# Print the model's output
-print(test_response.choices[0].message.content)
-
-
 

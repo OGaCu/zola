@@ -27,7 +27,8 @@ class OpenAiActions:
             messages=[
                 {"role": "user", "content": prompt}
             ],
-            max_tokens=1000  # give enough room for the response
+            max_tokens=1000,  # give enough room for the response
+            response_format={"type": "json_object"}  # 👈 This forces valid JSON
         )
         
         return response.choices[0].message.content

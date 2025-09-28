@@ -16,7 +16,11 @@ import { format } from "date-fns";
 import { DateRange } from "react-day-picker";
 import { ChevronLeft, ChevronRight, GripVertical, MapPin } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
-import { updateCurrentPlan, setCurrentPlan, setItinerary } from "../store/slices/travelSlice";
+import {
+  updateCurrentPlan,
+  setCurrentPlan,
+  setItinerary,
+} from "../store/slices/travelSlice";
 import { Plan } from "../types";
 import { deserializeDateRange, serializeDateRange } from "../utils/dateUtils";
 import { itineraryService } from "../services";
@@ -104,7 +108,7 @@ const TravelPanel = ({
 
   const handleGenerate = async () => {
     const serializedDates = serializeDateRange(dateRange);
-    
+
     // Show loading popup
     setIsGenerating(true);
 
@@ -143,9 +147,8 @@ const TravelPanel = ({
       const result = await itineraryService.createItinerary(planData);
 
       if (result && result.status === "success") {
-        console.log("Itinerary generated successfully:", result.data.itinerary);
-        // Store the generated itinerary in Redux
-        dispatch(setItinerary(result.data.itinerary));
+        console.log(result.data["query_keywords"]);
+        dispatch(setItinerary(result.data["itinerary"]));
       } else {
         console.error("Failed to generate itinerary:", result?.data?.error);
       }

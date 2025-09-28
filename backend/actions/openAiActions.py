@@ -27,8 +27,8 @@ class OpenAiActions:
             messages=[
                 {"role": "user", "content": prompt}
             ],
-            max_tokens=1000,  # give enough room for the response
-            response_format={"type": "json_object"}  # 👈 This forces valid JSON
+            max_tokens=3000,  # give enough room for the response
+            
         )
         
         return response.choices[0].message.content
@@ -71,5 +71,17 @@ Format Output Example:
 
 Repeat for each day of the trip.
 
+Finally, you should generate a list of relevant query keywords, which will be search in TripAdvisor to get more details about the itinerary.
+Example includes name of the city, attractions, restaurants, hotels, etc.
+
+output your entire response in the folowing json format:
+
+{{
+    "itinerary": (str) "markdown format of the itinerary",
+    "query_keywords": (list) "list of query keywords used to generate the itinerary"
+}}
+
+the string should be valid json that can be parsed by json.loads()
+
 """
-    return prompt.strip()
+    return prompt

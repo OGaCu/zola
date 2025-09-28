@@ -3,7 +3,7 @@ import requests
 import dotenv 
 import os
 from typing import List
-from backend.schema.Itinerary_Objects import Location
+from backend.schema.Location import Location
 
 dotenv.load_dotenv(os.path.join(os.path.dirname(__file__), '..', '..', '.env'))
 tripadvisor_key = os.getenv("TRIPADVISOR_KEY")
@@ -111,40 +111,22 @@ class TripAdvisorAction:
             )
 
     @staticmethod
+    
     def prepare_itenary(query: str) -> tuple[List[Location], List[Location], List[Location]]:
         """
         Prepare itinerary by fetching and parsing locations from TripAdvisor
         Returns tuple of (activities, restaurants, hotels) as Location objects
         """
         activities = []
-        restaurants = []
-        hotels = []
         
         # Get activities/attractions
-        activities_response = TripAdvisorAction._get_location_by_query(query, "attractions")
+        activities_response = TripAdvisorAction._get_location_by_query(query)
         for location in activities_response:
             id = location['location_id']
             response = TripAdvisorAction._get_location_details(id)
-            parsed_location = TripAdvisorAction._parse_location_response(response, "attractions")
+            parsed_location = TripAdvisorAction._parse_location_response(response)
             activities.append(parsed_location)
-        
-        # Get restaurants
-        restaurants_response = TripAdvisorAction._get_location_by_query(query, "restaurants")
-        for location in restaurants_response:
-            id = location['location_id']
-            response = TripAdvisorAction._get_location_details(id)
-            parsed_location = TripAdvisorAction._parse_location_response(response, "restaurants")
-            restaurants.append(parsed_location)
-        
-        # Get hotels
-        hotels_response = TripAdvisorAction._get_location_by_query(query, "hotels")
-        for location in hotels_response:
-            id = location['location_id']
-            response = TripAdvisorAction._get_location_details(id)
-            parsed_location = TripAdvisorAction._parse_location_response(response, "hotels")
-            hotels.append(parsed_location)
-        
-        return activities, restaurants, hotels
+        return activities
 
     @staticmethod
     def _get_location_details(location_id: str) -> dict:
@@ -157,12 +139,11 @@ class TripAdvisorAction:
         response = requests.get(url, params=params)
         return response.json()
     @staticmethod
-    def _get_location_by_query(query: str, category: str, limit: int = 5) -> dict:
+    def _get_location_by_query(query: str, limit: int = 5) -> dict:
         url = f"https://api.content.tripadvisor.com/api/v1/location/search"
         params = {
             "key": tripadvisor_key,
             "searchQuery": query,
-            "category": category, # "hotels", "attractions", "restaurants"
         }
         response = requests.get(url, params=params)
         return response.json()['data'][:limit]

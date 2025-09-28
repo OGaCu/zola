@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Dict, Any
 import uvicorn
-
+import json
 from actions.unsplashActions import UnsplashAction
 from actions.openAiActions import OpenAiActions
 from schema.Plan import Plan
@@ -110,9 +110,10 @@ async def createItinerary(request_data: Dict[str, Any]):
         # Convert request data to Plan object
         plan = Plan(**request_data)
         itinerary = OpenAiActions.createItinerary(plan)
+        print(itinerary)
         return ZolaResponse(
             status="success",
-            data={"itinerary": itinerary}
+            data=json.loads(itinerary)
         )
     except Exception as e:
         return ZolaResponse(

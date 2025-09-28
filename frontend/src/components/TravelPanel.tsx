@@ -311,7 +311,7 @@ const TravelPanel = ({
               className="w-full mt-8 py-6 text-lg bg-[#0abab5]"
               onClick={handleGenerate}
             >
-              Generate
+              Let's go!
             </Button>
           </div>
         )}

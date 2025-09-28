@@ -33,3 +33,19 @@ export interface ImageState {
   isLoading: boolean;
   error: string | null;
 }
+
+export interface TripAdvisorLocation {
+  id: string;
+  name: string;
+  category: "hotel" | "restaurant" | "attraction";
+  description: string;
+  address: string;
+  phone?: string | null;
+  price_level?: string | null;
+  rating: number;
+  amenities: string[];
+  styles: string[];
+  trip_types: string[];
+  web_url?: string | null;
+  photo_url?: string | null;
+}

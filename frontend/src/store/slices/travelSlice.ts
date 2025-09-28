@@ -50,7 +50,7 @@ const travelSlice = createSlice({
           dateFrom: undefined,
           dateTo: undefined,
           location: "",
-          numberOfPeople: 1,
+          numPeople: 1,
           budget: "",
           mood: "relaxing",
           images: action.payload,

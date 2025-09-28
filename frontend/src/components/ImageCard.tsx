@@ -45,7 +45,7 @@ const ImageCard = ({
       <div style={{ aspectRatio: aspectRatio }}>
         <img
           src={image.url}
-          alt={image.description}
+          alt={image.altText}
           className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
         />
       </div>

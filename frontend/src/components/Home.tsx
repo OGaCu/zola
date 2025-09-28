@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Search, Settings, Pin } from "lucide-react";
+import { Search, Settings, Pin, MapPin } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import TravelPanel from "./TravelPanel.tsx";
 import ImageGallery from "./ImageGallery.tsx";
 import { useTravelActions } from "../store/actions";
@@ -12,6 +13,7 @@ const Home = () => {
   const [panelWidth, setPanelWidth] = useState(350);
   const [searchQuery, setSearchQuery] = useState("");
   const [showOnlyPinned, setShowOnlyPinned] = useState(false);
+  const navigate = useNavigate();
   const { addImagesToCurrentPlan, removeImageFromCurrentPlan } =
     useTravelActions();
   const currentPlan = useAppSelector((state) => state.travel.currentPlan);
@@ -106,6 +108,13 @@ const Home = () => {
             }
           >
             <Pin className="h-5 w-5" />
+          </button>
+          <button
+            onClick={() => navigate("/itinerary")}
+            className="rounded-full p-2 bg-muted hover:bg-muted/80 transition-colors"
+            title="View Itinerary"
+          >
+            <MapPin className="h-5 w-5" />
           </button>
         </div>
         <ImageGallery

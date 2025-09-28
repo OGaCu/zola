@@ -119,7 +119,8 @@ class UnsplashAction:
                     alt_text = photo.get('alt_description', description)
                     
                     # Get tags for this photo
-                    tags = UnsplashAction.get_photo_tags(photo_id)
+                    # tags = UnsplashAction.get_photo_tags(photo_id)
+                    tags = []
                     
                     # Create Image object
                     image_obj = Image(
@@ -136,6 +137,7 @@ class UnsplashAction:
                 
             else:
                 print(f"❌ Failed to fetch images for query '{query}': {response.status_code}")
+                print(f"❌ Response: {response.text}")
         except Exception as e:
             print(f"❌ Error fetching images for query '{query}': {e}")
         
@@ -184,14 +186,14 @@ class UnsplashAction:
             print(f"❌ Error writing images to file {filename}: {e}")
 
 # Example usage of the image functions
-if __name__ == "__main__":
-    print("🎨 Fetching images for webpage initialization...")
-    dotenv.load_dotenv()
-    ACCESS_KEY = os.getenv('UNSPLASH_ACCESS_KEY')
-    if ACCESS_KEY:
-        print("access key is set") 
-    else:
-        print("access key is none")   
+# if __name__ == "__main__":
+    # print("🎨 Fetching images for webpage initialization...")
+    # dotenv.load_dotenv()
+    # ACCESS_KEY = os.getenv('UNSPLASH_ACCESS_KEY')
+    # if ACCESS_KEY:
+    #     print("access key is set") 
+    # else:
+    #     print("access key is none")   
 
     # test random images
     # random_images = getRandomImages()

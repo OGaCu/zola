@@ -6,12 +6,15 @@ import ImageGallery from "./ImageGallery.tsx";
 import { useTravelActions } from "../store/actions";
 import { Image } from "../types";
 import { useAppSelector } from "../store/hooks";
+import { imageService } from "../services/imageService";
 
 const Home = () => {
   const [isPanelCollapsed, setIsPanelCollapsed] = useState(false);
   const [panelWidth, setPanelWidth] = useState(350);
   const [searchQuery, setSearchQuery] = useState("");
   const [showOnlyPinned, setShowOnlyPinned] = useState(false);
+  const [searchResults, setSearchResults] = useState<Image[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
   const { addImagesToCurrentPlan, removeImageFromCurrentPlan } =
     useTravelActions();
   const currentPlan = useAppSelector((state) => state.travel.currentPlan);
@@ -35,10 +38,25 @@ const Home = () => {
     }
   };
 
-  const handleSearch = () => {
-    console.log("Search query:", searchQuery);
-    // Clear search input after searching
-    setSearchQuery("");
+  const handleSearch = async () => {
+    if (!searchQuery.trim()) {
+      console.log("Empty search query");
+      return;
+    }
+
+    console.log("Searching for:", searchQuery);
+    setIsSearching(true);
+    
+    try {
+      const images = await imageService.searchImages(searchQuery);
+      setSearchResults(images);
+    } catch (error) {
+      console.error("❌ Error searching images:", error);
+      setSearchResults([]);
+    } finally {
+      setIsSearching(false);
+      setSearchQuery(""); // Clear search input after searching
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -49,6 +67,19 @@ const Home = () => {
 
   const handleTogglePinnedView = () => {
     setShowOnlyPinned(!showOnlyPinned);
+  };
+
+  // Test function for image service
+  const testImageService = async () => {
+    console.log("🧪 Testing image service...");
+    
+    // Test random images
+    const randomImages = await imageService.testGetRandomImages();
+    console.log("Random images test result:", randomImages);
+    
+    // Test search images
+    const searchImages = await imageService.testSearchImages();
+    console.log("Search images test result:", searchImages);
   };
 
   return (
@@ -85,14 +116,14 @@ const Home = () => {
           </div>
           <button
             onClick={handleSearch}
-            disabled={!searchQuery.trim()}
+            disabled={isSearching || !searchQuery.trim()}
             className={`px-4 py-2 rounded-full transition-colors ${
-              !searchQuery.trim()
+              isSearching || !searchQuery.trim()
                 ? "bg-muted text-muted-foreground cursor-not-allowed"
                 : "bg-primary text-primary-foreground hover:bg-primary/90"
             }`}
           >
-            Search
+            {isSearching ? "Searching..." : "Search"}
           </button>
           <button
             onClick={handleTogglePinnedView}
@@ -111,6 +142,7 @@ const Home = () => {
         <ImageGallery
           onPinImage={handlePinImage}
           showOnlyPinned={showOnlyPinned}
+          searchResults={searchResults}
         />
       </div>
     </div>

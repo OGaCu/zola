@@ -16,6 +16,8 @@ export interface Plan {
   mood: string;
   // List of Image objects
   images: Image[];
+  // Generated itinerary markdown
+  itinerary?: string;
 }
 
 export interface TravelState {

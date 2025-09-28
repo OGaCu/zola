@@ -16,6 +16,7 @@ const Home = () => {
   const [showOnlyPinned, setShowOnlyPinned] = useState(false);
   const [searchResults, setSearchResults] = useState<Image[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [pinnedImages, setPinnedImages] = useState<Image[]>([]);
   const navigate = useNavigate();
   const { addImagesToCurrentPlan, removeImageFromCurrentPlan } =
     useTravelActions();
@@ -32,10 +33,20 @@ const Home = () => {
     if (isImagePinned) {
       console.log("Unpinning image from plan:", image);
       removeImageFromCurrentPlan(image.id);
+      // Remove from pinned images state
+      setPinnedImages(prev => prev.filter(img => img.id !== image.id));
       console.log("Image removed from current plan!");
     } else {
       console.log("Pinning image to plan:", image);
       addImagesToCurrentPlan([image]);
+      // Add to pinned images state
+      setPinnedImages(prev => {
+        const exists = prev.some(img => img.id === image.id);
+        if (!exists) {
+          return [...prev, image];
+        }
+        return prev;
+      });
       console.log("Image added to current plan!");
     }
   };
@@ -152,6 +163,7 @@ const Home = () => {
           onPinImage={handlePinImage}
           showOnlyPinned={showOnlyPinned}
           searchResults={searchResults}
+          pinnedImages={pinnedImages}
         />
       </div>
     </div>

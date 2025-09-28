@@ -66,7 +66,8 @@ class UnsplashAction:
                     alt_text = photo.get('alt_description') or description or ""
                     
                     # Get tags for this photo
-                    tags = UnsplashAction.get_photo_tags(photo_id)
+                    # tags = UnsplashAction.get_photo_tags(photo_id)
+                    tags = []
                     
                     # Create Image object
                     image_obj = Image(

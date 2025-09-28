@@ -20,6 +20,7 @@ import { updateCurrentPlan, setCurrentPlan, setItinerary } from "../store/slices
 import { Plan } from "../types";
 import { deserializeDateRange, serializeDateRange } from "../utils/dateUtils";
 import { itineraryService } from "../services";
+import { imageService } from "../services/imageService";
 import LoadingPopup from "./LoadingPopup";
 
 interface TravelPanelProps {
@@ -103,24 +104,42 @@ const TravelPanel = ({
 
   const handleGenerate = async () => {
     const serializedDates = serializeDateRange(dateRange);
-    const planData: Plan = {
-      dateFrom: serializedDates.from,
-      dateTo: serializedDates.to,
-      location,
-      numPeople: numPeople,
-      budget,
-      mood,
-      images: currentPlan?.images || [],
-    };
-
-    // Update Redux state
-    dispatch(setCurrentPlan(planData));
-
+    
     // Show loading popup
     setIsGenerating(true);
 
-    // Generate itinerary using the service
     try {
+      // First, fetch tags for all pinned images
+      const pinnedImages = currentPlan?.images || [];
+      const imagesWithTags = await Promise.all(
+        pinnedImages.map(async (image) => {
+          try {
+            const tags = await imageService.pinImage(image.id);
+            return { ...image, tags };
+          } catch (error) {
+            console.error(`Error fetching tags for image ${image.id}:`, error);
+            return image; // Return original image if tag fetching fails
+          }
+        })
+      );
+
+      console.log("✅ Fetched tags for all pinned images");
+
+      // Create plan data with images that now have tags
+      const planData: Plan = {
+        dateFrom: serializedDates.from,
+        dateTo: serializedDates.to,
+        location,
+        numPeople: numPeople,
+        budget,
+        mood,
+        images: imagesWithTags,
+      };
+
+      // Update Redux state with images that have tags
+      dispatch(setCurrentPlan(planData));
+
+      // Generate itinerary using the service
       const result = await itineraryService.createItinerary(planData);
 
       if (result && result.status === "success") {

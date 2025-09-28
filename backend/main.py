@@ -70,6 +70,30 @@ async def get_images(query: str):
             data={"error": str(e)}
         )
 
+@app.post("/pin-image", response_model=ZolaResponse)
+async def pin_image(request_data: Dict[str, Any]):
+    """Pin an image and fetch its tags"""
+    try:
+        image_id = request_data.get('imageId')
+        if not image_id:
+            return ZolaResponse(
+                status="error",
+                data={"error": "imageId is required"}
+            )
+        
+        # Fetch tags for the pinned image
+        tags = UnsplashAction.get_photo_tags(image_id)
+        
+        return ZolaResponse(
+            status="success",
+            data={"imageId": image_id, "tags": tags}
+        )
+    except Exception as e:
+        return ZolaResponse(
+            status="error",
+            data={"error": str(e)}
+        )
+
 @app.post("/create-itinerary", response_model=ZolaResponse)
 async def createItinerary(request_data: Dict[str, Any]):
     """Create itinerary based on plan data"""

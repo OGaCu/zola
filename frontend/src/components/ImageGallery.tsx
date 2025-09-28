@@ -8,6 +8,7 @@ interface ImageGalleryProps {
   onPinImage?: (image: Image) => void;
   showOnlyPinned?: boolean;
   searchResults?: Image[];
+  pinnedImages?: Image[];
 }
 
 const ImageGallery = ({
@@ -15,12 +16,26 @@ const ImageGallery = ({
   onPinImage,
   showOnlyPinned = false,
   searchResults = [],
+  pinnedImages = [],
 }: ImageGalleryProps) => {
   const currentPlan = useAppSelector((state) => state.travel.currentPlan);
   const pinnedImageIds = currentPlan?.images?.map((img) => img.id) || [];
 
-  // Use search results if available, otherwise use default images
-  const displayImages = searchResults.length > 0 ? searchResults : images;
+  // If there are search results, show only search results + pinned images
+  // Otherwise, show default images + pinned images
+  const otherImages = searchResults.length > 0 ? [...searchResults] : [...images];
+  
+  // Create display order: pinned images first, then other images
+  const allImages = [...pinnedImages];
+  
+  // Add other images (remove duplicates with pinned images)
+  otherImages.forEach(image => {
+    if (!allImages.some(img => img.id === image.id)) {
+      allImages.push(image);
+    }
+  });
+  
+  const displayImages = allImages;
 
   // Filter images based on showOnlyPinned prop
   const filteredImages = showOnlyPinned
@@ -34,6 +49,16 @@ const ImageGallery = ({
         <div className="px-6 py-3 bg-blue-50 border-b border-blue-200">
           <p className="text-sm text-blue-700">
             Showing {searchResults.length} search results
+            {pinnedImages.length > 0 && ` + ${pinnedImages.length} pinned images`}
+          </p>
+        </div>
+      )}
+      
+      {/* Pinned Images Header (when no search results but pinned images exist) */}
+      {searchResults.length === 0 && pinnedImages.length > 0 && (
+        <div className="px-6 py-3 bg-green-50 border-b border-green-200">
+          <p className="text-sm text-green-700">
+            Showing {pinnedImages.length} pinned images
           </p>
         </div>
       )}
@@ -61,7 +86,7 @@ const ImageGallery = ({
               <div key={image.id} className="break-inside-avoid mb-4 w-full">
                 <ImageCard
                   image={image}
-                  onPin={() => onPinImage?.(image)}
+                  onPin={(updatedImage) => onPinImage?.(updatedImage)}
                   isPinned={pinnedImageIds.includes(image.id)}
                 />
               </div>

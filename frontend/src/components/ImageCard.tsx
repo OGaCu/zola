@@ -4,10 +4,11 @@ import { Button } from "@/components/ui/button";
 import { PinIcon, ExternalLink, X, ChevronDown, ChevronUp } from "lucide-react";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Image } from "../types";
+import { imageService } from "../services/imageService";
 
 interface ImageCardProps {
   image: Image;
-  onPin?: () => void;
+  onPin?: (image: Image) => void;
   isPinned?: boolean;
 }
 
@@ -18,6 +19,7 @@ const ImageCard = ({
 }: ImageCardProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showAllTags, setShowAllTags] = useState(false);
+  const [currentImage, setCurrentImage] = useState(image);
   
   // Generate a random aspect ratio once when component mounts
   const aspectRatio = useMemo(() => {
@@ -26,11 +28,11 @@ const ImageCard = ({
 
   // Get tags to display (top 10 or all)
   const tagsToShow = useMemo(() => {
-    if (!image.tags || image.tags.length === 0) return [];
-    return showAllTags ? image.tags : image.tags.slice(0, 10);
-  }, [image.tags, showAllTags]);
+    if (!currentImage.tags || currentImage.tags.length === 0) return [];
+    return showAllTags ? currentImage.tags : currentImage.tags.slice(0, 10);
+  }, [currentImage.tags, showAllTags]);
 
-  const hasMoreTags = image.tags && image.tags.length > 10;
+  const hasMoreTags = currentImage.tags && currentImage.tags.length > 10;
 
   const handleImageClick = () => {
     setIsExpanded(!isExpanded);
@@ -45,12 +47,19 @@ const ImageCard = ({
 
   const handleUrlClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    window.open(image.url, '_blank');
+    window.open(currentImage.url, '_blank');
   };
 
   const toggleShowAllTags = (e: React.MouseEvent) => {
     e.stopPropagation();
     setShowAllTags(!showAllTags);
+  };
+
+  const handlePin = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    // Simply call the parent's onPin callback without fetching tags
+    onPin(currentImage);
+    console.log(`✅ Image ${currentImage.id} pinned`);
   };
 
   return (
@@ -68,10 +77,7 @@ const ImageCard = ({
               ? "bg-primary text-primary-foreground hover:bg-primary/90"
               : "bg-white/80 hover:bg-white"
           }`}
-          onClick={(e) => {
-            e.stopPropagation();
-            onPin();
-          }}
+          onClick={handlePin}
         >
           <PinIcon
             className={`h-4 w-4 ${
@@ -84,8 +90,8 @@ const ImageCard = ({
       {/* Image */}
       <div style={{ aspectRatio: aspectRatio }}>
         <img
-          src={image.url}
-          alt={image.altText}
+          src={currentImage.url}
+          alt={currentImage.altText}
           className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
         />
       </div>
@@ -98,8 +104,8 @@ const ImageCard = ({
             <div className="flex-1 flex items-center justify-center bg-gray-50 p-6">
               <div className="relative max-w-full max-h-full">
                 <img
-                  src={image.url}
-                  alt={image.altText}
+                  src={currentImage.url}
+                  alt={currentImage.altText}
                   className="max-w-full max-h-full object-contain rounded-lg shadow-lg"
                 />
                 {/* Close Button on Image */}
@@ -119,27 +125,27 @@ const ImageCard = ({
               {/* Header */}
               <div className="p-4 border-b border-gray-200 bg-gray-50">
                 <h2 className="text-lg font-semibold text-gray-900">Image Details</h2>
-                <p className="text-sm text-gray-500">ID: {image.id}</p>
+                <p className="text-sm text-gray-500">ID: {currentImage.id}</p>
               </div>
 
               {/* Content */}
               <div className="flex-1 overflow-y-auto p-4 space-y-6">
                 {/* Description */}
-                {image.description && (
+                {currentImage.description && (
                   <div>
                     <h3 className="text-sm font-medium text-gray-700 mb-2">Description</h3>
                     <p className="text-gray-600 text-sm leading-relaxed">
-                      {image.description}
+                      {currentImage.description}
                     </p>
                   </div>
                 )}
 
                 {/* Tags Section */}
-                {image.tags && image.tags.length > 0 && (
+                {currentImage.tags && currentImage.tags.length > 0 && (
                   <div>
                     <div className="flex items-center justify-between mb-3">
                       <h3 className="text-sm font-medium text-gray-700">
-                        Tags {showAllTags ? `(${image.tags.length})` : `(${Math.min(10, image.tags.length)} of ${image.tags.length})`}
+                        Tags {showAllTags ? `(${currentImage.tags.length})` : `(${Math.min(10, currentImage.tags.length)} of ${currentImage.tags.length})`}
                       </h3>
                       {hasMoreTags && (
                         <Button
@@ -178,11 +184,11 @@ const ImageCard = ({
                 )}
 
                 {/* Alt Text */}
-                {image.altText && (
+                {currentImage.altText && (
                   <div>
                     <h3 className="text-sm font-medium text-gray-700 mb-2">Alt Text</h3>
                     <p className="text-gray-600 text-sm leading-relaxed bg-gray-50 p-3 rounded-lg">
-                      {image.altText}
+                      {currentImage.altText}
                     </p>
                   </div>
                 )}
@@ -192,7 +198,7 @@ const ImageCard = ({
                   <h3 className="text-sm font-medium text-gray-700 mb-3">Image URL</h3>
                   <div className="space-y-2">
                     <code className="block text-xs bg-gray-100 p-2 rounded border text-gray-700 break-all">
-                      {image.url}
+                      {currentImage.url}
                     </code>
                     <Button
                       variant="outline"

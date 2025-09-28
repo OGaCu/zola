@@ -60,4 +60,25 @@ export const imageService = {
   testGetRandomImages: async () => {
     return await imageService.getRandomImages();
   },
+
+  // Pin an image and fetch its tags
+  pinImage: async (imageId: string): Promise<string[]> => {
+    try {
+      console.log("Calling pinImage endpoint with imageId:", imageId);
+      const data = await apiCall("/pin-image", {
+        method: "POST",
+        body: JSON.stringify({ imageId }),
+      });
+      if (data.status === "success" && data.data.tags) {
+        console.log("Pin Image Response:", data.data.tags);
+        return data.data.tags;
+      } else {
+        console.error("Error pinning image:", data.data.error);
+        return [];
+      }
+    } catch (error) {
+      console.error("PinImage API call failed:", error);
+      return [];
+    }
+  },
 };

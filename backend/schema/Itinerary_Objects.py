@@ -14,7 +14,7 @@ class Location(BaseModel):
     price_level: Optional[str] = None
     rating: Optional[float] = None
     amenities: List[str] = []
-    styles: List[str] = []
+    styles: List[str] = [] # 
     trip_types: List[str] = []
     web_url: Optional[str] = None
     photo_url: Optional[str] = None

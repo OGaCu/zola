@@ -1,6 +1,7 @@
 import requests
 import dotenv 
 import os
+import json
 from typing import List
 from schema.Image import Image
 
@@ -45,7 +46,7 @@ class UnsplashAction:
             # Get random images
             url = 'https://api.unsplash.com/photos/random'
             params = {
-                'count': 10,  # Fixed count for random images
+                'count': 30,  # Fixed count for random images
                 'client_id': ACCESS_KEY,
                 'orientation': 'landscape'  # Better for web display
             }
@@ -102,7 +103,7 @@ class UnsplashAction:
             url = 'https://api.unsplash.com/search/photos'
             params = {
                 'query': query,
-                'per_page': 10,
+                'per_page': 30,
                 'client_id': ACCESS_KEY,
                 'orientation': 'landscape'  # Better for web display
             }
@@ -144,6 +145,150 @@ class UnsplashAction:
         
         return images
 
+    @staticmethod
+    def save_images():
+        """
+        Fetch random images from Unsplash and save them locally with metadata
+        Maintains a goal of 150 images in the saved_images folder
+        """
+        try:
+            # Create images directory if it doesn't exist
+            images_dir = os.path.join(os.path.dirname(__file__), '..', 'saved_images')
+            os.makedirs(images_dir, exist_ok=True)
+            
+            # Check current number of saved images
+            existing_folders = [f for f in os.listdir(images_dir) if f.startswith('image_')]
+            current_count = len(existing_folders)
+            target_count = 150
+            
+            if current_count >= target_count:
+                print(f"✅ Already have {current_count} images, no need to fetch more")
+                return current_count
+            
+            # Calculate how many images to fetch
+            images_needed = target_count - current_count
+            print(f"📊 Current: {current_count}, Target: {target_count}, Need: {images_needed}")
+            
+            # Fetch images in batches of 30 (API limit)
+            saved_count = current_count
+            batch_size = 30
+            
+            while saved_count < target_count:
+                batch_needed = min(batch_size, target_count - saved_count)
+                
+                url = 'https://api.unsplash.com/photos/random'
+                params = {
+                    'count': batch_needed,
+                    'client_id': ACCESS_KEY,
+                    'orientation': 'landscape'
+                }
+                
+                response = requests.get(url, params=params)
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    photos = data if isinstance(data, list) else [data]
+                    
+                    for photo in photos:
+                        try:
+                            photo_id = photo.get('id', '')
+                            
+                            # Skip if image already exists
+                            if f"image_{photo_id}" in existing_folders:
+                                continue
+                                
+                            image_url = photo.get('urls', {}).get('regular', '')
+                            description = photo.get('description', '')
+                            alt_text = photo.get('alt_description') or description or ""
+                            
+                            # Create folder for this image
+                            image_folder = os.path.join(images_dir, f"image_{photo_id}")
+                            os.makedirs(image_folder, exist_ok=True)
+                            
+                            # Download and save the image
+                            img_response = requests.get(image_url)
+                            if img_response.status_code == 200:
+                                img_path = os.path.join(image_folder, 'image.jpg')
+                                with open(img_path, 'wb') as f:
+                                    f.write(img_response.content)
+                                
+                                # Create Image object metadata
+                                image_obj = Image(
+                                    id=photo_id,
+                                    url=image_url,
+                                    description=description,
+                                    altText=alt_text,
+                                    tags=[]  # Tags will be fetched when needed
+                                )
+                                
+                                # Save metadata as JSON
+                                metadata_path = os.path.join(image_folder, 'metadata.json')
+                                with open(metadata_path, 'w') as f:
+                                    json.dump(image_obj.dict(), f, indent=2)
+                                
+                                saved_count += 1
+                                print(f"✅ Saved image {photo_id} ({saved_count}/{target_count})")
+                                
+                        except Exception as e:
+                            print(f"❌ Error saving image {photo.get('id', 'unknown')}: {e}")
+                            continue
+                    
+                    # Update existing folders list for next iteration
+                    existing_folders = [f for f in os.listdir(images_dir) if f.startswith('image_')]
+                    
+                else:
+                    print(f"❌ Failed to fetch images: {response.status_code}")
+                    break
+            
+            print(f"✅ Successfully saved {saved_count} images to {images_dir}")
+            return saved_count
+                
+        except Exception as e:
+            print(f"❌ Error in save_images: {e}")
+            return 0
+
+    @staticmethod
+    def load_saved_images(count: int = 40) -> List[Image]:
+        """
+        Load random images from saved images folder
+        """
+        try:
+            images_dir = os.path.join(os.path.dirname(__file__), '..', 'saved_images')
+            
+            if not os.path.exists(images_dir):
+                print("❌ Saved images directory doesn't exist")
+                return []
+            
+            # Get all image folders
+            image_folders = [f for f in os.listdir(images_dir) if f.startswith('image_')]
+            
+            if not image_folders:
+                print("❌ No saved images found")
+                return []
+            
+            # Randomly select folders
+            import random
+            selected_folders = random.sample(image_folders, min(count, len(image_folders)))
+            
+            images = []
+            for folder in selected_folders:
+                try:
+                    metadata_path = os.path.join(images_dir, folder, 'metadata.json')
+                    if os.path.exists(metadata_path):
+                        with open(metadata_path, 'r') as f:
+                            metadata = json.load(f)
+                            images.append(Image(**metadata))
+                except Exception as e:
+                    print(f"❌ Error loading image from {folder}: {e}")
+                    continue
+            
+            print(f"✅ Loaded {len(images)} saved images")
+            return images
+            
+        except Exception as e:
+            print(f"❌ Error loading saved images: {e}")
+            return []
+
     def printImages(images: List[Image], title: str = "Images"):
         """
         Print a list of Image objects in a clean format
@@ -178,7 +323,6 @@ class UnsplashAction:
                     f.write(f"     URL: {img.url}\n")
                     f.write(f"     Description: {img.description}\n")
                     f.write(f"     Alt Text: {img.altText}\n")
-                    f.write(f"     Tags: {', '.join(img.tags)}\n")
                     f.write("\n")
             
             print(f"✅ Successfully wrote {len(images)} images to {filename}")

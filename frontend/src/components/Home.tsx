@@ -17,10 +17,25 @@ const Home = () => {
   const [searchResults, setSearchResults] = useState<Image[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [pinnedImages, setPinnedImages] = useState<Image[]>([]);
+  const [defaultImages, setDefaultImages] = useState<Image[]>([]);
   const navigate = useNavigate();
   const { addImagesToCurrentPlan, removeImageFromCurrentPlan } =
     useTravelActions();
   const currentPlan = useAppSelector((state) => state.travel.currentPlan);
+
+  // Load default images on component mount
+  useEffect(() => {
+    const loadDefaultImages = async () => {
+      try {
+        const images = await imageService.getRandomImages();
+        setDefaultImages(images);
+      } catch (error) {
+        console.error("Error loading default images:", error);
+      }
+    };
+    
+    loadDefaultImages();
+  }, []);
 
   const handleWidthChange = (newWidth: number) => {
     setPanelWidth(newWidth);
@@ -160,6 +175,7 @@ const Home = () => {
           </button>
         </div>
         <ImageGallery
+          images={defaultImages}
           onPinImage={handlePinImage}
           showOnlyPinned={showOnlyPinned}
           searchResults={searchResults}

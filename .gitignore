@@ -2,3 +2,4 @@
 unsplash_images/
 package-lock.json
 testenv
+backend/saved_images

@@ -24,6 +24,7 @@
 4. **Run the development server:**
 
    ```bash
+   python setup_images.py
    python main.py
    ```
 

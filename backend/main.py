@@ -44,11 +44,20 @@ async def root():
 @app.get("/get-random-images", response_model=ZolaResponse)
 async def get_random_images():
     try:
-        random_images = UnsplashAction.get_random_images()
-        return ZolaResponse(
-            status="success",
-            data={"images": random_images}
-        )
+        # Try to load saved images first, fallback to API if none available
+        saved_images = UnsplashAction.load_saved_images(40)
+        if saved_images:
+            return ZolaResponse(
+                status="success",
+                data={"images": saved_images}
+            )
+        else:
+            # Fallback to API if no saved images
+            random_images = UnsplashAction.get_random_images()
+            return ZolaResponse(
+                status="success",
+                data={"images": random_images}
+            )
     except Exception as e:
         return ZolaResponse(
             status="error",
@@ -113,6 +122,25 @@ async def createItinerary(request_data: Dict[str, Any]):
 
 # Run the application
 if __name__ == "__main__":
+    # Check if saved_images folder is empty and populate if needed
+    import os
+    saved_images_dir = os.path.join(os.path.dirname(__file__), 'saved_images')
+    
+    # Check if we need to populate images (goal: 150 images)
+    existing_folders = []
+    if os.path.exists(saved_images_dir):
+        existing_folders = [f for f in os.listdir(saved_images_dir) if f.startswith('image_')]
+    
+    if len(existing_folders) < 150:
+        print(f"🔄 Need to populate images (current: {len(existing_folders)}, target: 150)...")
+        saved_count = UnsplashAction.save_images()
+        if saved_count > 0:
+            print(f"✅ Successfully saved {saved_count} images for startup")
+        else:
+            print("❌ Failed to save images, will use API fallback")
+    else:
+        print(f"✅ Saved images folder has {len(existing_folders)} images, ready to serve")
+    
     uvicorn.run(
         "main:app",
         host="0.0.0.0",

@@ -12,7 +12,8 @@ interface ImageGalleryProps {
 }
 
 const ImageGallery = ({
-  images = defaultImages,
+  // images = defaultImages,
+  images = [],
   onPinImage,
   showOnlyPinned = false,
   searchResults = [],

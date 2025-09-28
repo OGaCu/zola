@@ -21,10 +21,11 @@ import {
   updateCurrentPlan,
   setCurrentPlan,
   setItinerary,
+  setLocations,
 } from "../store/slices/travelSlice";
 import { Plan } from "../types";
 import { deserializeDateRange, serializeDateRange } from "../utils/dateUtils";
-import { itineraryService } from "../services";
+import { itineraryService, getLocationsService } from "../services";
 import { imageService } from "../services/imageService";
 import LoadingPopup from "./LoadingPopup";
 
@@ -178,7 +179,56 @@ const TravelPanel = ({
       const result = await itineraryService.createItinerary(planData);
 
       if (result && result.status === "success") {
-        console.log(result.data["query_keywords"]);
+        console.log("Query keywords:", result.data["query_keywords"]);
+
+        // Call getLocationsService with query keywords
+        const queryKeywords = result.data["query_keywords"].slice(0, 3);
+        if (
+          queryKeywords &&
+          Array.isArray(queryKeywords) &&
+          queryKeywords.length > 0
+        ) {
+          console.log(
+            "Calling getLocationsService with queries:",
+            queryKeywords
+          );
+          const locationsResult = await getLocationsService.getLocations(
+            queryKeywords
+          );
+          console.log("GetLocationsService returned:", locationsResult);
+
+          // Set locations in global state if successful
+          if (
+            locationsResult &&
+            locationsResult.status === "success" &&
+            locationsResult.data.locations
+          ) {
+            // Filter out duplicate locations based on locationId
+            const uniqueLocations = locationsResult.data.locations.filter(
+              (location, index, self) =>
+                index ===
+                self.findIndex((l) => l.location_id === location.location_id)
+            );
+
+            console.log(
+              "Original locations count:",
+              locationsResult.data.locations.length
+            );
+            console.log("Unique locations count:", uniqueLocations.length);
+            console.log(
+              "Setting unique locations in global state:",
+              uniqueLocations
+            );
+
+            dispatch(setLocations(uniqueLocations));
+          } else {
+            console.error(
+              "Failed to fetch locations:",
+              locationsResult?.data?.error
+            );
+          }
+        }
+
         dispatch(setItinerary(result.data["itinerary"]));
         // Navigate after itinerary is ready
         navigate("/itinerary");

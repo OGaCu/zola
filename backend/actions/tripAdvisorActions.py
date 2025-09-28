@@ -10,11 +10,12 @@ tripadvisor_key = os.getenv("TRIPADVISOR_KEY")
 
 class TripAdvisorAction:
     @staticmethod
-    def _parse_location_response(response: dict, category: str) -> Location:
+    def _parse_location_response(response: dict) -> Location:
         """
         Parse TripAdvisor API response into Location object
         """
         try:
+            print(response)
             # Extract basic information
             location_id = str(response.get('location_id', ''))
             name = response.get('name', '')
@@ -71,13 +72,7 @@ class TripAdvisorAction:
             web_url = response.get('web_url', None)
             
             # Extract photo URL - need to construct from photo_count and see_all_photos
-            photo_url = None
-            if 'see_all_photos' in response:
-                photo_url = response['see_all_photos']
-            elif 'photo_count' in response and int(response['photo_count']) > 0:
-                # If there are photos but no direct URL, we could construct one
-                # For now, we'll leave it as None since we need the actual photo endpoint
-                photo_url = None
+            photo_url = TripAdvisorAction._get_location_image(location_id)
             
             # Extract price level - not present in this attraction, but might be in restaurants/hotels
             price_level = None
@@ -89,7 +84,7 @@ class TripAdvisorAction:
             return Location(
                 location_id=location_id,
                 name=name,
-                category=category,
+                category="",
                 description=description,
                 address=address,
                 phone=phone,
@@ -107,7 +102,7 @@ class TripAdvisorAction:
             return Location(
                 location_id=str(response.get('location_id', '')),
                 name=response.get('name', 'Unknown'),
-                category=category
+                category=""
             )
 
     @staticmethod
@@ -146,22 +141,20 @@ class TripAdvisorAction:
         }
         response = requests.get(url, params=params)
         return response.json()['data'][:limit]
-    
+    @staticmethod
+    def _get_location_image(location_id: str) -> str:
+        url = f"https://api.content.tripadvisor.com/api/v1/location/{location_id}/photos"
+        params = {
+            "key": tripadvisor_key,
+            "language": "en",
+            "currency": "USD",
+        }
+        response = requests.get(url, params=params)
+        return response.json()["data"][0]["images"]["original"]["url"]
     
     
 # write a few tests for the TripAdvisorAction class
 if __name__ == "__main__":
     # Test the prepare_itenary method
-    activities, restaurants, hotels = TripAdvisorAction.get_location("New York")
-    
-    print("=== ACTIVITIES ===")
-    for activity in activities:
-        print(activity)
-    
-    print("=== RESTAURANTS ===")
-    for restaurant in restaurants:
-        print(restaurant)
-    
-    print("=== HOTELS ===")
-    for hotel in hotels:
-        print(hotel)
+    images = TripAdvisorAction._get_location_image("8093951")
+    print(images)

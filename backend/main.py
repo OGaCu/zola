@@ -140,9 +140,9 @@ async def get_locations(request_data: Dict[str, Any]):
                 continue
                 
             try:
-                activities, restaurants, hotels = TripAdvisorAction.get_locations(query.strip())
+                activities= TripAdvisorAction.get_locations(query.strip())
                 # Combine all location types
-                query_locations = activities + restaurants + hotels
+                query_locations = activities
                 all_locations.extend(query_locations)
             except Exception as e:
                 print(f"Error fetching locations for query '{query}': {e}")

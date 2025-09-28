@@ -3,55 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAppSelector } from "../store/hooks";
+import ReactMarkdown from "react-markdown";
 
 const ItineraryPage = () => {
   const navigate = useNavigate();
   const currentPlan = useAppSelector((state) => state.travel.currentPlan);
 
-  // Simple markdown renderer for basic formatting
-  const renderMarkdown = (markdown: string) => {
-    if (!markdown) return null;
-    
-    return markdown
-      .split('\n')
-      .map((line, index) => {
-        // Headers
-        if (line.startsWith('### ')) {
-          return <h3 key={index} className="text-lg font-semibold mt-6 mb-3 text-primary">{line.replace('### ', '')}</h3>;
-        }
-        if (line.startsWith('## ')) {
-          return <h2 key={index} className="text-xl font-bold mt-8 mb-4 text-primary">{line.replace('## ', '')}</h2>;
-        }
-        if (line.startsWith('# ')) {
-          return <h1 key={index} className="text-2xl font-bold mt-8 mb-4 text-primary">{line.replace('# ', '')}</h1>;
-        }
-        
-        // Bold text
-        if (line.includes('**')) {
-          const parts = line.split('**');
-          return (
-            <p key={index} className="mb-2">
-              {parts.map((part, i) => 
-                i % 2 === 1 ? <strong key={i} className="font-semibold">{part}</strong> : part
-              )}
-            </p>
-          );
-        }
-        
-        // Bullet points
-        if (line.startsWith('- ')) {
-          return <li key={index} className="ml-4 mb-1">{line.replace('- ', '')}</li>;
-        }
-        
-        // Empty lines
-        if (line.trim() === '') {
-          return <br key={index} />;
-        }
-        
-        // Regular paragraphs
-        return <p key={index} className="mb-2">{line}</p>;
-      });
-  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -88,7 +45,57 @@ const ItineraryPage = () => {
             
             {currentPlan?.itinerary ? (
               <div className="prose prose-sm max-w-none">
-                {renderMarkdown(currentPlan.itinerary)}
+                <ReactMarkdown
+                  components={{
+                    h1: ({ children }) => (
+                      <h1 className="text-2xl font-bold mt-8 mb-4 text-primary">
+                        {children}
+                      </h1>
+                    ),
+                    h2: ({ children }) => (
+                      <h2 className="text-xl font-bold mt-6 mb-3 text-primary">
+                        {children}
+                      </h2>
+                    ),
+                    h3: ({ children }) => (
+                      <h3 className="text-lg font-semibold mt-4 mb-2 text-primary">
+                        {children}
+                      </h3>
+                    ),
+                    p: ({ children }) => (
+                      <p className="mb-3 leading-relaxed">
+                        {children}
+                      </p>
+                    ),
+                    ul: ({ children }) => (
+                      <ul className="list-disc list-inside mb-4 space-y-1">
+                        {children}
+                      </ul>
+                    ),
+                    ol: ({ children }) => (
+                      <ol className="list-decimal list-inside mb-4 space-y-1">
+                        {children}
+                      </ol>
+                    ),
+                    li: ({ children }) => (
+                      <li className="ml-2">
+                        {children}
+                      </li>
+                    ),
+                    strong: ({ children }) => (
+                      <strong className="font-semibold text-foreground">
+                        {children}
+                      </strong>
+                    ),
+                    em: ({ children }) => (
+                      <em className="italic">
+                        {children}
+                      </em>
+                    ),
+                  }}
+                >
+                  {currentPlan.itinerary}
+                </ReactMarkdown>
               </div>
             ) : (
               <div className="text-center py-12">

@@ -6,6 +6,7 @@ import uvicorn
 import json
 from actions.unsplashActions import UnsplashAction
 from actions.openAiActions import OpenAiActions
+from actions.tripAdvisorActions import TripAdvisorAction
 from schema.Plan import Plan
 
 # Create FastAPI app
@@ -114,6 +115,46 @@ async def createItinerary(request_data: Dict[str, Any]):
         return ZolaResponse(
             status="success",
             data=json.loads(itinerary)
+        )
+    except Exception as e:
+        return ZolaResponse(
+            status="error",
+            data={"error": str(e)}
+        )
+
+@app.post("/get-locations", response_model=ZolaResponse)
+async def get_locations(request_data: Dict[str, Any]):
+    """Get TripAdvisor locations for multiple queries"""
+    try:
+        queries = request_data.get('queries', [])
+        if not queries or not isinstance(queries, list):
+            return ZolaResponse(
+                status="error",
+                data={"error": "queries must be a non-empty list of strings"}
+            )
+        
+        all_locations = []
+        
+        for query in queries:
+            if not isinstance(query, str) or not query.strip():
+                continue
+                
+            try:
+                activities, restaurants, hotels = TripAdvisorAction.get_locations(query.strip())
+                # Combine all location types
+                query_locations = activities + restaurants + hotels
+                all_locations.extend(query_locations)
+            except Exception as e:
+                print(f"Error fetching locations for query '{query}': {e}")
+                continue
+        
+        return ZolaResponse(
+            status="success",
+            data={
+                "locations": all_locations,
+                "total_count": len(all_locations),
+                "queries_processed": len(queries)
+            }
         )
     except Exception as e:
         return ZolaResponse(

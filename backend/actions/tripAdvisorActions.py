@@ -3,7 +3,7 @@ import requests
 import dotenv 
 import os
 from typing import List
-from backend.schema.Location import Location
+from schema.Location import Location
 
 dotenv.load_dotenv(os.path.join(os.path.dirname(__file__), '..', '..', '.env'))
 tripadvisor_key = os.getenv("TRIPADVISOR_KEY")
@@ -111,8 +111,7 @@ class TripAdvisorAction:
             )
 
     @staticmethod
-    
-    def prepare_itenary(query: str) -> tuple[List[Location], List[Location], List[Location]]:
+    def get_locations(query: str) -> tuple[List[Location], List[Location], List[Location]]:
         """
         Prepare itinerary by fetching and parsing locations from TripAdvisor
         Returns tuple of (activities, restaurants, hotels) as Location objects
@@ -153,7 +152,7 @@ class TripAdvisorAction:
 # write a few tests for the TripAdvisorAction class
 if __name__ == "__main__":
     # Test the prepare_itenary method
-    activities, restaurants, hotels = TripAdvisorAction.prepare_itenary("New York")
+    activities, restaurants, hotels = TripAdvisorAction.get_location("New York")
     
     print("=== ACTIVITIES ===")
     for activity in activities:

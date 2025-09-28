@@ -81,7 +81,7 @@ output your entire response in the folowing json format:
     "itinerary": (str) "markdown format of the itinerary",
     "query_keywords": (list) "list of query keywords used to generate the itinerary"
 }}
-
+THE QUERY KEYWORDS SHOULD BE A FIELD IN THE JSON OBJECT, not in the markdown format
 the string should be valid json that can be parsed by json.loads()
 
 """

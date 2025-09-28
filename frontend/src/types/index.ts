@@ -18,6 +18,8 @@ export interface Plan {
   images: Image[];
   // Generated itinerary markdown
   itinerary?: string;
+  // TripAdvisor locations
+  locations?: TripAdvisorLocation[];
 }
 
 export interface TravelState {
@@ -35,9 +37,9 @@ export interface ImageState {
 }
 
 export interface TripAdvisorLocation {
-  id: string;
+  location_id: string;
   name: string;
-  category: "hotel" | "restaurant" | "attraction";
+  category: string;
   description: string;
   address: string;
   phone?: string | null;

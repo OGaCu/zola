@@ -124,9 +124,7 @@ const TravelPanel = ({
     );
 
     setMood((prev) =>
-      currentPlan.mood && currentPlan.mood.length > 0
-        ? currentPlan.mood
-        : prev
+      currentPlan.mood && currentPlan.mood.length > 0 ? currentPlan.mood : prev
     );
   }, [
     currentPlan?.dateFrom,
@@ -206,7 +204,7 @@ const TravelPanel = ({
   return (
     <>
       <LoadingPopup isVisible={isGenerating} />
-      <div className="relative h-full bg-white border-r border-gray-200 shadow-sm flex flex-col">
+      <div className="relative h-full w-full bg-white border-r border-gray-200 shadow-sm flex flex-col">
         {/* Handle buttons container */}
         <div className="absolute top-1/2 -right-3 transform -translate-y-1/2 flex flex-col gap-1 z-20">
           {/* Expand/Collapse button - always visible */}
@@ -236,7 +234,7 @@ const TravelPanel = ({
 
         {/* Collapsed state - shows icon at top */}
         {isCollapsed && (
-          <div className="h-full flex flex-col">
+          <div className="h-full w-full flex flex-col">
             <div className="p-4 flex items-center justify-center">
               <div className="min-w-12 h-12 bg-[#0abab5] rounded-full flex items-center justify-center shadow-md">
                 <MapPin className="w-6 h-6 text-white" />
@@ -246,7 +244,7 @@ const TravelPanel = ({
         )}
 
         {!isCollapsed && (
-          <div className="p-6 flex flex-col h-full">
+          <div className="p-6 flex flex-col h-full w-full">
             <h1 className="text-4xl font-bold mb-6">Zola</h1>
             <h2 className="text-2xl font-bold mb-6">Plan Your Trip</h2>
 
@@ -282,7 +280,9 @@ const TravelPanel = ({
                       selected={dateRange}
                       onSelect={setDateRange}
                       initialFocus
-                      disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                      disabled={(date) =>
+                        date < new Date(new Date().setHours(0, 0, 0, 0))
+                      }
                     />
                   </PopoverContent>
                 </Popover>

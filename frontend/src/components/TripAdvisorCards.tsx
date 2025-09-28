@@ -1,5 +1,11 @@
 import React from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Star, Phone, Globe, Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -12,59 +18,105 @@ interface TripAdvisorCardsProps {
   error?: string | null;
 }
 
-// Mock data for TripAdvisor locations - this will be replaced with real data from your backend
+// Mock data for TripAdvisor locations - Atlanta-based locations
 const mockLocations: TripAdvisorLocation[] = [
   {
-    id: "1",
-    name: "Golden Gate Bridge",
+    location_id: "1",
+    name: "Georgia Aquarium",
     category: "attraction",
-    description: "Iconic suspension bridge spanning the Golden Gate strait",
-    address: "Golden Gate Bridge, San Francisco, CA",
-    phone: null,
-    price_level: "Free",
-    rating: 4.5,
-    amenities: ["Free WiFi", "Parking", "Restrooms"],
-    styles: ["Historic", "Scenic"],
-    trip_types: ["Family", "Couples", "Solo"],
-    web_url: "https://www.tripadvisor.com/example",
-    photo_url: "https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=400&h=300&fit=crop"
-  },
-  {
-    id: "2",
-    name: "Fisherman's Wharf",
-    category: "attraction",
-    description: "Historic waterfront district with shops, restaurants, and sea lions",
-    address: "Pier 39, San Francisco, CA",
-    phone: "+1 (415) 705-5500",
+    description:
+      "One of the world's largest aquariums featuring thousands of marine animals",
+    address: "225 Baker St NW, Atlanta, GA 30313",
+    phone: "+1 (404) 581-4000",
     price_level: "$$",
-    rating: 4.2,
-    amenities: ["Shopping", "Dining", "Entertainment"],
-    styles: ["Tourist", "Family-friendly"],
-    trip_types: ["Family", "Groups"],
-    web_url: "https://www.tripadvisor.com/example2",
-    photo_url: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400&h=300&fit=crop"
+    rating: 4.3,
+    amenities: ["Parking", "Gift Shop", "Restaurants", "Accessibility"],
+    styles: ["Educational", "Family-friendly"],
+    trip_types: ["Family", "Couples", "Groups"],
+    web_url: "https://www.tripadvisor.com/example",
+    photo_url:
+      "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400&h=300&fit=crop",
   },
   {
-    id: "3",
-    name: "The French Laundry",
+    location_id: "2",
+    name: "World of Coca-Cola",
+    category: "attraction",
+    description:
+      "Interactive museum showcasing the history and culture of the Coca-Cola brand",
+    address: "121 Baker St NW, Atlanta, GA 30313",
+    phone: "+1 (404) 676-5151",
+    price_level: "$$",
+    rating: 4.1,
+    amenities: ["Gift Shop", "Tasting Room", "Parking"],
+    styles: ["Historic", "Interactive"],
+    trip_types: ["Family", "Groups", "Solo"],
+    web_url: "https://www.tripadvisor.com/example2",
+    photo_url:
+      "https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=400&h=300&fit=crop",
+  },
+  {
+    location_id: "3",
+    name: "The Varsity",
     category: "restaurant",
-    description: "Michelin-starred fine dining restaurant in Napa Valley",
-    address: "6640 Washington St, Yountville, CA",
-    phone: "+1 (707) 944-2380",
-    price_level: "$$$$",
-    rating: 4.8,
-    amenities: ["Fine Dining", "Wine Selection", "Private Dining"],
-    styles: ["Upscale", "Romantic"],
-    trip_types: ["Couples", "Special Occasion"],
+    description:
+      "Historic fast-food restaurant famous for its chili dogs and onion rings",
+    address: "61 North Ave NW, Atlanta, GA 30308",
+    phone: "+1 (404) 881-1706",
+    price_level: "$",
+    rating: 3.8,
+    amenities: ["Drive-thru", "Dine-in", "Takeout"],
+    styles: ["Casual", "Historic", "Fast Food"],
+    trip_types: ["Family", "Groups", "Solo"],
     web_url: "https://www.tripadvisor.com/example3",
-    photo_url: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&h=300&fit=crop"
-  }
+    photo_url:
+      "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&h=300&fit=crop",
+  },
+  {
+    location_id: "4",
+    name: "Centennial Olympic Park",
+    category: "attraction",
+    description:
+      "Beautiful park built for the 1996 Olympics with fountains and green spaces",
+    address: "265 Park Ave W NW, Atlanta, GA 30313",
+    phone: "+1 (404) 222-7275",
+    price_level: "Free",
+    rating: 4.2,
+    amenities: ["Free WiFi", "Parking", "Restrooms", "Playground"],
+    styles: ["Scenic", "Historic", "Family-friendly"],
+    trip_types: ["Family", "Couples", "Solo"],
+    web_url: "https://www.tripadvisor.com/example4",
+    photo_url:
+      "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400&h=300&fit=crop",
+  },
+  {
+    location_id: "5",
+    name: "The Ritz-Carlton Atlanta",
+    category: "hotel",
+    description:
+      "Luxury hotel in downtown Atlanta with elegant rooms and fine dining",
+    address: "181 Peachtree St NE, Atlanta, GA 30303",
+    phone: "+1 (404) 659-0400",
+    price_level: "$$$$",
+    rating: 4.4,
+    amenities: [
+      "Spa",
+      "Fitness Center",
+      "Restaurant",
+      "Room Service",
+      "Concierge",
+    ],
+    styles: ["Luxury", "Business", "Romantic"],
+    trip_types: ["Couples", "Business", "Special Occasion"],
+    web_url: "https://www.tripadvisor.com/example5",
+    photo_url:
+      "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&h=300&fit=crop",
+  },
 ];
 
-const TripAdvisorCards: React.FC<TripAdvisorCardsProps> = ({ 
-  locations = mockLocations, 
-  isLoading = false, 
-  error = null 
+const TripAdvisorCards: React.FC<TripAdvisorCardsProps> = ({
+  locations = mockLocations,
+  isLoading = false,
+  error = null,
 }) => {
   const getCategoryIcon = (category: string) => {
     switch (category) {
@@ -98,11 +150,18 @@ const TripAdvisorCards: React.FC<TripAdvisorCardsProps> = ({
     const hasHalfStar = rating % 1 !== 0;
 
     for (let i = 0; i < fullStars; i++) {
-      stars.push(<Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />);
+      stars.push(
+        <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+      );
     }
 
     if (hasHalfStar) {
-      stars.push(<Star key="half" className="h-4 w-4 fill-yellow-400/50 text-yellow-400" />);
+      stars.push(
+        <Star
+          key="half"
+          className="h-4 w-4 fill-yellow-400/50 text-yellow-400"
+        />
+      );
     }
 
     const emptyStars = 5 - Math.ceil(rating);
@@ -148,26 +207,35 @@ const TripAdvisorCards: React.FC<TripAdvisorCardsProps> = ({
     <div className="space-y-4">
       {locations.length > 0 ? (
         locations.map((location) => (
-          <Card key={location.id} className="overflow-hidden">
+          <Card key={location.location_id} className="overflow-hidden">
             <div className="flex">
               {/* Image */}
               <div className="w-32 h-24 flex-shrink-0">
                 <img
-                  src={location.photo_url || "https://via.placeholder.com/128x96"}
+                  src={
+                    location.photo_url || "https://via.placeholder.com/128x96"
+                  }
                   alt={location.name}
                   className="w-full h-full object-cover"
                 />
               </div>
-              
+
               {/* Content */}
               <div className="flex-1 p-4">
                 <CardHeader className="p-0 pb-2">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <CardTitle className="text-lg leading-tight">{location.name}</CardTitle>
+                      <CardTitle className="text-lg leading-tight">
+                        {location.name}
+                      </CardTitle>
                       <div className="flex items-center gap-2 mt-1">
-                        <Badge className={`text-xs ${getCategoryColor(location.category)}`}>
-                          {getCategoryIcon(location.category)} {location.category}
+                        <Badge
+                          className={`text-xs ${getCategoryColor(
+                            location.category
+                          )}`}
+                        >
+                          {getCategoryIcon(location.category)}{" "}
+                          {location.category}
                         </Badge>
                         <div className="flex items-center gap-1">
                           {renderStars(location.rating)}
@@ -184,12 +252,12 @@ const TripAdvisorCards: React.FC<TripAdvisorCardsProps> = ({
                     )}
                   </div>
                 </CardHeader>
-                
+
                 <CardContent className="p-0">
                   <CardDescription className="text-sm mb-2 line-clamp-2">
                     {location.description}
                   </CardDescription>
-                  
+
                   <div className="space-y-1 text-xs text-muted-foreground">
                     {location.address && (
                       <div className="flex items-center gap-1">
@@ -204,12 +272,16 @@ const TripAdvisorCards: React.FC<TripAdvisorCardsProps> = ({
                       </div>
                     )}
                   </div>
-                  
+
                   {/* Amenities */}
                   {location.amenities.length > 0 && (
                     <div className="flex flex-wrap gap-1 mt-2">
                       {location.amenities.slice(0, 3).map((amenity, index) => (
-                        <Badge key={index} variant="secondary" className="text-xs">
+                        <Badge
+                          key={index}
+                          variant="secondary"
+                          className="text-xs"
+                        >
                           {amenity}
                         </Badge>
                       ))}
@@ -220,11 +292,15 @@ const TripAdvisorCards: React.FC<TripAdvisorCardsProps> = ({
                       )}
                     </div>
                   )}
-                  
+
                   {/* Actions */}
                   <div className="flex gap-2 mt-3">
                     {location.web_url && (
-                      <Button size="sm" variant="outline" className="text-xs h-7">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="text-xs h-7"
+                      >
                         <Globe className="h-3 w-3 mr-1" />
                         View Details
                       </Button>

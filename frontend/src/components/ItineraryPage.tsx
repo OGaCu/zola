@@ -10,7 +10,6 @@ const ItineraryPage = () => {
   const navigate = useNavigate();
   const currentPlan = useAppSelector((state) => state.travel.currentPlan);
 
-
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -35,19 +34,25 @@ const ItineraryPage = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold">Your Personalized Itinerary</h2>
+            <h2 className="text-xl font-semibold">
+              Your Personalized Itinerary
+            </h2>
             {currentPlan?.location && (
               <div className="text-sm text-muted-foreground">
-                {currentPlan.location} • {currentPlan.numPeople} {currentPlan.numPeople === 1 ? 'person' : 'people'} • {currentPlan.mood}
+                {currentPlan.location} • {currentPlan.numPeople}{" "}
+                {currentPlan.numPeople === 1 ? "person" : "people"} •{" "}
+                {currentPlan.mood}
               </div>
             )}
           </div>
-          
+
           {currentPlan?.itinerary ? (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
               {/* Left - Markdown Itinerary (7/12) */}
               <div className="lg:col-span-7 bg-card rounded-lg border border-border p-6 overflow-hidden">
-                <h3 className="text-lg font-semibold mb-4">Itinerary Details</h3>
+                <h3 className="text-lg font-semibold mb-4">
+                  Itinerary Details
+                </h3>
                 <div className="prose prose-sm max-w-none overflow-hidden">
                   <ReactMarkdown
                     components={{
@@ -67,9 +72,7 @@ const ItineraryPage = () => {
                         </h3>
                       ),
                       p: ({ children }) => (
-                        <p className="mb-3 leading-relaxed">
-                          {children}
-                        </p>
+                        <p className="mb-3 leading-relaxed">{children}</p>
                       ),
                       ul: ({ children }) => (
                         <ul className="list-disc list-inside mb-4 space-y-1">
@@ -82,9 +85,7 @@ const ItineraryPage = () => {
                         </ol>
                       ),
                       li: ({ children }) => (
-                        <li className="ml-2">
-                          {children}
-                        </li>
+                        <li className="ml-2">{children}</li>
                       ),
                       strong: ({ children }) => (
                         <strong className="font-semibold text-foreground">
@@ -92,9 +93,7 @@ const ItineraryPage = () => {
                         </strong>
                       ),
                       em: ({ children }) => (
-                        <em className="italic">
-                          {children}
-                        </em>
+                        <em className="italic">{children}</em>
                       ),
                     }}
                   >
@@ -105,9 +104,11 @@ const ItineraryPage = () => {
 
               {/* Right - TripAdvisor Cards (5/12) */}
               <div className="lg:col-span-5 bg-card rounded-lg border border-border p-6 overflow-hidden">
-                <h3 className="text-lg font-semibold mb-4">Recommended Locations</h3>
+                <h3 className="text-lg font-semibold mb-4">
+                  Recommended Locations
+                </h3>
                 <div className="overflow-y-auto max-h-[600px]">
-                  <TripAdvisorCards />
+                  <TripAdvisorCards locations={currentPlan.locations} />
                 </div>
               </div>
             </div>
@@ -115,15 +116,15 @@ const ItineraryPage = () => {
             <div className="text-center py-12">
               <div className="text-muted-foreground mb-4">
                 <RefreshCw className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <h3 className="text-lg font-medium mb-2">No Itinerary Generated Yet</h3>
+                <h3 className="text-lg font-medium mb-2">
+                  No Itinerary Generated Yet
+                </h3>
                 <p className="text-sm">
-                  Go back to the home page and click "Generate" to create your personalized travel itinerary.
+                  Go back to the home page and click "Generate" to create your
+                  personalized travel itinerary.
                 </p>
               </div>
-              <Button 
-                onClick={() => navigate("/")}
-                className="mt-4"
-              >
+              <Button onClick={() => navigate("/")} className="mt-4">
                 Go to Home Page
               </Button>
             </div>

@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { Plan, TravelState } from "../../types";
+import { Plan, TravelState, TripAdvisorLocation } from "../../types";
 
 const initialState: TravelState = {
   currentPlan: null,
@@ -70,6 +70,11 @@ const travelSlice = createSlice({
         state.currentPlan.itinerary = action.payload;
       }
     },
+    setLocations: (state, action: PayloadAction<TripAdvisorLocation[]>) => {
+      if (state.currentPlan) {
+        state.currentPlan.locations = action.payload;
+      }
+    },
   },
 });
 
@@ -84,6 +89,7 @@ export const {
   addImagesToCurrentPlan,
   removeImageFromCurrentPlan,
   setItinerary,
+  setLocations,
 } = travelSlice.actions;
 
 export default travelSlice.reducer;

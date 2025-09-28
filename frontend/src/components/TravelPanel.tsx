@@ -16,7 +16,7 @@ import { format } from "date-fns";
 import { DateRange } from "react-day-picker";
 import { ChevronLeft, ChevronRight, GripVertical, MapPin } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
-import { updateCurrentPlan, setCurrentPlan } from "../store/slices/travelSlice";
+import { updateCurrentPlan, setCurrentPlan, setItinerary } from "../store/slices/travelSlice";
 import { Plan } from "../types";
 import { deserializeDateRange, serializeDateRange } from "../utils/dateUtils";
 import { itineraryService } from "../services";
@@ -125,7 +125,8 @@ const TravelPanel = ({
 
       if (result && result.status === "success") {
         console.log("Itinerary generated successfully:", result.data.itinerary);
-        // You can add the itinerary to your state or display it here
+        // Store the generated itinerary in Redux
+        dispatch(setItinerary(result.data.itinerary));
       } else {
         console.error("Failed to generate itinerary:", result?.data?.error);
       }

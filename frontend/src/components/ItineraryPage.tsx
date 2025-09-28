@@ -1,10 +1,57 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAppSelector } from "../store/hooks";
 
 const ItineraryPage = () => {
   const navigate = useNavigate();
+  const currentPlan = useAppSelector((state) => state.travel.currentPlan);
+
+  // Simple markdown renderer for basic formatting
+  const renderMarkdown = (markdown: string) => {
+    if (!markdown) return null;
+    
+    return markdown
+      .split('\n')
+      .map((line, index) => {
+        // Headers
+        if (line.startsWith('### ')) {
+          return <h3 key={index} className="text-lg font-semibold mt-6 mb-3 text-primary">{line.replace('### ', '')}</h3>;
+        }
+        if (line.startsWith('## ')) {
+          return <h2 key={index} className="text-xl font-bold mt-8 mb-4 text-primary">{line.replace('## ', '')}</h2>;
+        }
+        if (line.startsWith('# ')) {
+          return <h1 key={index} className="text-2xl font-bold mt-8 mb-4 text-primary">{line.replace('# ', '')}</h1>;
+        }
+        
+        // Bold text
+        if (line.includes('**')) {
+          const parts = line.split('**');
+          return (
+            <p key={index} className="mb-2">
+              {parts.map((part, i) => 
+                i % 2 === 1 ? <strong key={i} className="font-semibold">{part}</strong> : part
+              )}
+            </p>
+          );
+        }
+        
+        // Bullet points
+        if (line.startsWith('- ')) {
+          return <li key={index} className="ml-4 mb-1">{line.replace('- ', '')}</li>;
+        }
+        
+        // Empty lines
+        if (line.trim() === '') {
+          return <br key={index} />;
+        }
+        
+        // Regular paragraphs
+        return <p key={index} className="mb-2">{line}</p>;
+      });
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -30,28 +77,36 @@ const ItineraryPage = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
           <div className="bg-card rounded-lg border border-border p-6">
-            <h2 className="text-xl font-semibold mb-4">Your Personalized Itinerary</h2>
-            <p className="text-muted-foreground">
-              This is your new itinerary page! You can add your travel itinerary content here.
-            </p>
-            
-            {/* Example itinerary content */}
-            <div className="mt-6 space-y-4">
-              <div className="border-l-4 border-primary pl-4">
-                <h3 className="font-medium">Day 1 - Arrival</h3>
-                <p className="text-sm text-muted-foreground">Check into your hotel and explore the local area</p>
-              </div>
-              
-              <div className="border-l-4 border-primary pl-4">
-                <h3 className="font-medium">Day 2 - Sightseeing</h3>
-                <p className="text-sm text-muted-foreground">Visit the main attractions and landmarks</p>
-              </div>
-              
-              <div className="border-l-4 border-primary pl-4">
-                <h3 className="font-medium">Day 3 - Departure</h3>
-                <p className="text-sm text-muted-foreground">Final day activities and departure</p>
-              </div>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-semibold">Your Personalized Itinerary</h2>
+              {currentPlan?.location && (
+                <div className="text-sm text-muted-foreground">
+                  {currentPlan.location} • {currentPlan.numPeople} {currentPlan.numPeople === 1 ? 'person' : 'people'} • {currentPlan.mood}
+                </div>
+              )}
             </div>
+            
+            {currentPlan?.itinerary ? (
+              <div className="prose prose-sm max-w-none">
+                {renderMarkdown(currentPlan.itinerary)}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <div className="text-muted-foreground mb-4">
+                  <RefreshCw className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <h3 className="text-lg font-medium mb-2">No Itinerary Generated Yet</h3>
+                  <p className="text-sm">
+                    Go back to the home page and click "Generate" to create your personalized travel itinerary.
+                  </p>
+                </div>
+                <Button 
+                  onClick={() => navigate("/")}
+                  className="mt-4"
+                >
+                  Go to Home Page
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </div>

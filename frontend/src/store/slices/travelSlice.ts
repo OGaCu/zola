@@ -65,6 +65,11 @@ const travelSlice = createSlice({
       }
       // If no current plan exists, do nothing (no images to remove)
     },
+    setItinerary: (state, action: PayloadAction<string>) => {
+      if (state.currentPlan) {
+        state.currentPlan.itinerary = action.payload;
+      }
+    },
   },
 });
 
@@ -78,6 +83,7 @@ export const {
   clearCurrentPlan,
   addImagesToCurrentPlan,
   removeImageFromCurrentPlan,
+  setItinerary,
 } = travelSlice.actions;
 
 export default travelSlice.reducer;

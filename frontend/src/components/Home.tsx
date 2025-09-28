@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Search, Settings, Pin, MapPin } from "lucide-react";
+import { Search, Settings, Pin, Notebook } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import TravelPanel from "./TravelPanel.tsx";
 import ImageGallery from "./ImageGallery.tsx";
@@ -171,7 +171,7 @@ const Home = () => {
             className="rounded-full p-2 bg-muted hover:bg-muted/80 transition-colors"
             title="View Itinerary"
           >
-            <MapPin className="h-5 w-5" />
+            <Notebook className="h-5 w-5" />
           </button>
         </div>
         <ImageGallery

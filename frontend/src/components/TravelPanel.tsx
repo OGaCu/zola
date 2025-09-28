@@ -90,21 +90,50 @@ const TravelPanel = ({
     };
   }, [isDragging]);
 
-  // Sync local state with Redux state
+  // Sync local state with Redux state without clobbering user input
   React.useEffect(() => {
-    if (currentPlan) {
-      setDateRange(
-        deserializeDateRange({
-          from: currentPlan.dateFrom,
-          to: currentPlan.dateTo,
-        })
-      );
-      setLocation(currentPlan.location);
-      setNumPeople(currentPlan.numPeople);
-      setBudget(currentPlan.budget);
-      setMood(currentPlan.mood);
+    if (!currentPlan) return;
+
+    // Only update if dates exist; otherwise keep user's current selection
+    const nextRange = deserializeDateRange({
+      from: currentPlan.dateFrom,
+      to: currentPlan.dateTo,
+    });
+    if (nextRange?.from || nextRange?.to) {
+      setDateRange(nextRange);
     }
-  }, [currentPlan]);
+
+    setLocation((prev) =>
+      currentPlan.location && currentPlan.location.length > 0
+        ? currentPlan.location
+        : prev
+    );
+
+    setNumPeople((prev) =>
+      typeof currentPlan.numPeople === "number" && currentPlan.numPeople > 0
+        ? currentPlan.numPeople
+        : prev
+    );
+
+    setBudget((prev) =>
+      currentPlan.budget && currentPlan.budget.length > 0
+        ? currentPlan.budget
+        : prev
+    );
+
+    setMood((prev) =>
+      currentPlan.mood && currentPlan.mood.length > 0
+        ? currentPlan.mood
+        : prev
+    );
+  }, [
+    currentPlan?.dateFrom,
+    currentPlan?.dateTo,
+    currentPlan?.location,
+    currentPlan?.numPeople,
+    currentPlan?.budget,
+    currentPlan?.mood,
+  ]);
 
   const handleGenerate = async () => {
     const serializedDates = serializeDateRange(dateRange);

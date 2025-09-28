@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Calendar } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -39,6 +40,7 @@ const TravelPanel = ({
   onWidthChange = () => {},
 }: TravelPanelProps) => {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const currentPlan = useAppSelector((state) => state.travel.currentPlan);
 
   const [dateRange, setDateRange] = useState<DateRange | undefined>(
@@ -141,6 +143,8 @@ const TravelPanel = ({
     // Show loading popup
     setIsGenerating(true);
 
+    // Stay on loading screen until itinerary is ready
+
     try {
       // First, fetch tags for all pinned images
       const pinnedImages = currentPlan?.images || [];
@@ -178,6 +182,8 @@ const TravelPanel = ({
       if (result && result.status === "success") {
         console.log(result.data["query_keywords"]);
         dispatch(setItinerary(result.data["itinerary"]));
+        // Navigate after itinerary is ready
+        navigate("/itinerary");
       } else {
         console.error("Failed to generate itinerary:", result?.data?.error);
       }
